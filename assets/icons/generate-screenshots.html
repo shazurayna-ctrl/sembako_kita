@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Generate Screenshots</title>
+<style>
+  body {
+    background: #1e293b;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+    justify-content: center;
+  }
+  .preview {
+    background: #f0fdf4;
+    border-radius: 20px;
+    padding: 20px;
+    width: 380px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .preview h3 {
+    color: #065f46;
+    margin: 0 0 10px 0;
+    text-align: center;
+  }
+  .preview .content {
+    min-height: 600px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 12px;
+  }
+  .preview .content .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d1fae5;
+  }
+  .preview .content .header h2 {
+    margin: 0;
+    font-size: 16px;
+    color: #065f46;
+  }
+  .preview .content .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .preview .content .stat {
+    background: #f0fdf4;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  .preview .content .stat .num {
+    font-size: 20px;
+    font-weight: 800;
+    color: #065f46;
+  }
+  .preview .content .stat .label {
+    font-size: 10px;
+    color: #64748b;
+  }
+  .preview .content .products {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .preview .content .product {
+    background: #f8fafc;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+  }
+  .preview .content .product .emoji { font-size: 24px; }
+  .preview .content .product .name { font-size: 11px; font-weight: 600; }
+  .preview .content .product .price { font-size: 11px; color: #065f46; font-weight: 700; }
+  .btn-download {
+    background: #f59e0b;
+    color: #1e293b;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 12px;
+    width: 100%;
+    font-size: 14px;
+  }
+  .btn-download:hover { background: #fbbf24; }
+</style>
+</head>
+<body>
+
+<div class="preview">
+  <h3>📊 Dashboard</h3>
+  <div class="content" id="dashboardScreenshot">
+    <div class="header">
+      <h2>Dashboard Posko Pusat</h2>
+      <span style="font-size:10px;color:#64748b;">23 Jun 2026</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num">1,247</div><div class="label">Warga</div></div>
+      <div class="stat"><div class="num">3,842</div><div class="label">Paket</div></div>
+      <div class="stat"><div class="num">Rp 24.7jt</div><div class="label">Dana</div></div>
+      <div class="stat"><div class="num">23</div><div class="label">Mesh Node</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;margin:8px 0;">Harga Sembako Terkini</div>
+    <div class="products">
+      <div class="product"><div class="emoji">🍚</div><div class="name">Beras</div><div class="price">Rp 12.500</div></div>
+      <div class="product"><div class="emoji">🫗</div><div class="name">Minyak</div><div class="price">Rp 15.700</div></div>
+      <div class="product"><div class="emoji">🥚</div><div class="name">Telur</div><div class="price">Rp 27.500</div></div>
+      <div class="product"><div class="emoji">🍬</div><div class="name">Gula</div><div class="price">Rp 14.500</div></div>
+    </div>
+  </div>
+  <button class="btn-download" onclick="downloadScreenshot('dashboardScreenshot', 'dashboard')">📥 Download Dashboard</button>
+</div>
+
+<div class="preview">
+  <h3>🏪 Kasir Retail</h3>
+  <div class="content" id="cashierScreenshot">
+    <div class="header">
+      <h2>Kasir Retail</h2>
+      <span style="font-size:10px;color:#64748b;">15% margin → subsidi</span>
+    </div>
+    <div class="products" style="margin-top:8px;">
+      <div class="product"><div class="emoji">🍚</div><div class="name">Beras SPHP</div><div class="price">Rp 12.500</div></div>
+      <div class="product"><div class="emoji">🫗</div><div class="name">Minyakita</div><div class="price">Rp 15.700</div></div>
+      <div class="product"><div class="emoji">🥚</div><div class="name">Telur</div><div class="price">Rp 27.500</div></div>
+      <div class="product"><div class="emoji">🍬</div><div class="name">Gula</div><div class="price">Rp 14.500</div></div>
+      <div class="product"><div class="emoji">🧂</div><div class="name">Garam</div><div class="price">Rp 5.000</div></div>
+      <div class="product"><div class="emoji">🍵</div><div class="name">Teh Celup</div><div class="price">Rp 8.500</div></div>
+      <div class="product"><div class="emoji">🍜</div><div class="name">Mie Instan</div><div class="price">Rp 3.500</div></div>
+      <div class="product"><div class="emoji">🥛</div><div class="name">Susu Kental</div><div class="price">Rp 11.000</div></div>
+    </div>
+    <div style="margin-top:10px;padding:10px;background:#f0fdf4;border-radius:8px;text-align:center;font-size:12px;color:#64748b;">
+      🛒 Keranjang: 0 item • Total: Rp 0
+    </div>
+  </div>
+  <button class="btn-download" onclick="downloadScreenshot('cashierScreenshot', 'cashier')">📥 Download Cashier</button>
+</div>
+
+<script>
+function downloadScreenshot(elementId, name) {
+  const element = document.getElementById(elementId);
+  
+  // Create canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080;
+  canvas.height = 1920;
+  const ctx = canvas.getContext('2d');
+  
+  // White background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 1080, 1920);
+  
+  // Title
+  ctx.fillStyle = '#065f46';
+  ctx.font = 'bold 60px Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('SembakoKita.Pro', 540, 120);
+  
+  ctx.fillStyle = '#64748b';
+  ctx.font = '30px Arial, sans-serif';
+  ctx.fillText('Ekosistem Krisis Pangan v5.0', 540, 180);
+  
+  // Line
+  ctx.strokeStyle = '#d1fae5';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(100, 210);
+  ctx.lineTo(980, 210);
+  ctx.stroke();
+  
+  // Render element content to canvas
+  const content = element.cloneNode(true);
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:1080px;background:white;padding:40px;font-family:Arial,sans-serif;';
+  wrapper.appendChild(content);
+  document.body.appendChild(wrapper);
+  
+  // Scale content
+  const scale = 1080 / 380;
+  content.style.transform = `scale(${scale})`;
+  content.style.transformOrigin = 'top left';
+  content.style.width = '380px';
+  
+  // Wait for render
+  setTimeout(() => {
+    // Draw content to canvas
+    const contentWidth = 380 * scale;
+    const contentHeight = content.scrollHeight * scale;
+    
+    // Position content
+    const x = (1080 - contentWidth) / 2;
+    const y = 240;
+    
+    // Draw background card
+    ctx.fillStyle = '#f0fdf4';
+    ctx.shadowColor = 'rgba(0,0,0,0.1)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 10;
+    ctx.beginPath();
+    ctx.roundRect(x - 20, y - 20, contentWidth + 40, contentHeight + 40, 20);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    
+    // Draw content using foreignObject
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', 1080);
+    svg.setAttribute('height', 1920);
+    const foreign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+    foreign.setAttribute('width', 1080);
+    foreign.setAttribute('height', 1920);
+    foreign.setAttribute('x', 0);
+    foreign.setAttribute('y', 0);
+    
+    const div = document.createElement('div');
+    div.innerHTML = wrapper.innerHTML;
+    div.style.cssText = 'background:white;padding:20px;width:100%;height:100%;overflow:hidden;';
+    foreign.appendChild(div);
+    svg.appendChild(foreign);
+    
+    // Convert SVG to image
+    const serializer = new XMLSerializer();
+    const svgStr = serializer.serializeToString(svg);
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    
+    const img = new Image();
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      document.body.removeChild(wrapper);
+      
+      // Download
+      const link = document.createElement('a');
+      link.download = `${name}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+    img.src = url;
+  }, 500);
+}
+
+// Polyfill roundRect if needed
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = {tl: r, tr: r, br: r, bl: r};
+    this.moveTo(x + r.tl, y);
+    this.lineTo(x + w - r.tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+    this.lineTo(x + w, y + h - r.br);
+    this.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+    this.lineTo(x + r.bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+    this.lineTo(x, y + r.tl);
+    this.quadraticCurveTo(x, y, x + r.tl, y);
+    this.closePath();
+    return this;
+  };
+}
+</script>
+</body>
+</html>
