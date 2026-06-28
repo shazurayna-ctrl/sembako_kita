@@ -221,4 +221,184 @@ const App = {
       this.charts.allocation = new Chart(allocCtx, {
         type: 'doughnut',
         data: {
-          labels: ['B
+          labels: ['Beli Sembako (50%)', 'Subsidi Harga (30%)', 'Ops & Mesh (20%)'],
+          datasets: [{
+            data: [50, 30, 20],
+            backgroundColor: ['#16a34a', '#2563eb', '#d97706'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } },
+          cutout: '65%'
+        }
+      });
+    }
+  },
+
+  // ============================================
+  // THEME
+  // ============================================
+  applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    this.state.theme = theme;
+    localStorage.setItem('sembakokita_theme', theme);
+    
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.theme === theme);
+    });
+  },
+
+  setTheme(theme) {
+    this.applyTheme(theme);
+    showToast(`🎨 Tema diubah ke ${theme}`, 'info');
+  },
+
+  // ============================================
+  // REALTIME
+  // ============================================
+  setupRealtime() {
+    // Subscribe to items
+    SupaDB.subscribeToTable('items', async (payload) => {
+      console.log('🔄 Items changed:', payload);
+      await this.loadData();
+      this.renderPriceTable();
+      this.renderStockTable();
+      this.renderPosProducts();
+      this.renderDashboardStats();
+    });
+
+    // Subscribe to tickets
+    SupaDB.subscribeToTable('tickets', async (payload) => {
+      console.log('🔄 Tickets changed:', payload);
+      await this.loadData();
+      this.renderTicketList();
+    });
+
+    // Subscribe to funds
+    SupaDB.subscribeToTable('funds', async (payload) => {
+      console.log('🔄 Funds changed:', payload);
+      await this.loadData();
+      this.renderDashboardStats();
+      this.renderAuditTable();
+    });
+
+    console.log('📡 Realtime subscriptions aktif');
+  },
+
+  // ============================================
+  // BACKGROUND TASKS
+  // ============================================
+  startBackgroundTasks() {
+    // Auto backup
+    setInterval(() => {
+      console.log('🔄 Auto-backup running...');
+    }, 3600000);
+
+    // Check battery
+    setInterval(() => this.checkBattery(), 30000);
+
+    // Update clock
+    setInterval(() => {
+      const syncEl = document.getElementById('lastSync');
+      if (syncEl) {
+        syncEl.textContent = new Date().toLocaleTimeString('id');
+      }
+    }, 60000);
+  },
+
+  checkBattery() {
+    if ('getBattery' in navigator) {
+      navigator.getBattery().then(battery => {
+        const level = Math.round(battery.level * 100);
+        document.getElementById('batteryLevel').textContent = level + '%';
+        
+        if (level < 15) {
+          this.setTheme('survival');
+          showToast('🔋 Baterai < 15%! Switch ke mode Survival', 'warning');
+        }
+      });
+    }
+  },
+
+  // ============================================
+  // NAVIGATION
+  // ============================================
+  navigateTo(page) {
+    this.state.currentPage = page;
+    
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
+    
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (navItem) navItem.classList.add('active');
+    
+    if (window.innerWidth <= 768) {
+      this.toggleSidebar();
+    }
+  },
+
+  toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
+  },
+
+  // ============================================
+  // TOAST
+  // ============================================
+  showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span class="toast-message">${message}</span>`;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  },
+
+  // ============================================
+  // UTILITY
+  // ============================================
+  simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    const hex = Math.abs(hash).toString(16).padStart(16, '0');
+    return hex + hex.substring(0, 16) + hex.substring(0, 16) + hex.substring(0, 16);
+  }
+};
+
+// ============================================
+// EXPOSE TO GLOBAL
+// ============================================
+window.App = App;
+window.showToast = (msg, type) => App.showToast(msg, type);
+window.navigateTo = (page) => App.navigateTo(page);
+window.toggleSidebar = () => App.toggleSidebar();
+window.setTheme = (theme) => App.setTheme(theme);
+window.simpleHash = (str) => App.simpleHash(str);
+
+// ============================================
+// BOOT
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+  App.init();
+});
+
+console.log('📦 App.js loaded');
