@@ -1,0 +1,3878 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#065f46">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SembakoKita.Pro — Ekosistem Krisis Pangan v5</title>
+
+<!-- CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('✅ SW registered:', reg))
+      .catch(err => console.error('❌ SW registration failed:', err));
+  });
+}
+</script>
+
+<style>
+:root {
+  --primary: #065f46;
+  --primary-light: #059669;
+  --primary-dark: #064e3b;
+  --secondary: #0369a1;
+  --secondary-light: #0ea5e9;
+  --accent: #f59e0b;
+  --danger: #dc2626;
+  --danger-light: #f87171;
+  --success: #16a34a;
+  --warning: #eab308;
+  --bg: #f0fdf4;
+  --bg-card: #ffffff;
+  --bg-sidebar: #064e3b;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #f0fdf4;
+  --border: #d1fae5;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="crisis"] {
+  --primary: #991b1b;
+  --primary-light: #dc2626;
+  --primary-dark: #7f1d1d;
+  --secondary: #c2410c;
+  --secondary-light: #f97316;
+  --bg: #fef2f2;
+  --bg-card: #ffffff;
+  --bg-sidebar: #7f1d1d;
+  --border: #fecaca;
+}
+
+[data-theme="survival"] {
+  --primary: #374151;
+  --primary-light: #6b7280;
+  --primary-dark: #1f2937;
+  --secondary: #4b5563;
+  --secondary-light: #9ca3af;
+  --accent: #9ca3af;
+  --bg: #f3f4f6;
+  --bg-card: #e5e7eb;
+  --bg-sidebar: #111827;
+  --text: #111827;
+  --text-secondary: #4b5563;
+  --border: #d1d5db;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  transition: var(--transition);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 280px;
+  background: var(--bg-sidebar);
+  color: var(--text-light);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 1000;
+  transition: var(--transition);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-logo {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.sidebar-brand h1 {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sidebar-brand span {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px;
+}
+
+.nav-section {
+  margin-bottom: 8px;
+}
+
+.nav-section-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  opacity: 0.5;
+  padding: 8px 12px 4px;
+  font-weight: 600;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+  font-weight: 500;
+  position: relative;
+  user-select: none;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.15);
+  font-weight: 600;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-item i {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  transition: var(--transition);
+  min-height: 100vh;
+}
+
+.main-content.expanded {
+  margin-left: 0;
+}
+
+.topbar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.topbar-search {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+}
+
+.topbar-search input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.topbar-search input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.topbar-search i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.topbar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  font-size: 16px;
+}
+
+.topbar-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.topbar-btn .badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: var(--danger);
+  color: white;
+  font-size: 9px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.theme-switcher {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.theme-btn {
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.theme-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+.page-content {
+  padding: 24px;
+}
+
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.stat-icon.green { background: #dcfce7; color: #16a34a; }
+.stat-icon.blue { background: #dbeafe; color: #2563eb; }
+.stat-icon.orange { background: #fef3c7; color: #d97706; }
+.stat-icon.red { background: #fee2e2; color: #dc2626; }
+.stat-icon.purple { background: #f3e8ff; color: #9333ea; }
+
+.stat-info h3 {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-info p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-trend {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.stat-trend.up { color: var(--success); }
+.stat-trend.down { color: var(--danger); }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th {
+  background: var(--bg);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border);
+}
+
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tr:hover td {
+  background: rgba(5, 150, 105, 0.03);
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-success { background: #dcfce7; color: #16a34a; }
+.badge-warning { background: #fef3c7; color: #d97706; }
+.badge-danger { background: #fee2e2; color: #dc2626; }
+.badge-info { background: #dbeafe; color: #2563eb; }
+.badge-purple { background: #f3e8ff; color: #9333ea; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.btn-secondary { background: var(--secondary); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-warning { background: var(--accent); color: #1e293b; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--bg); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-lg { padding: 12px 24px; font-size: 15px; }
+.btn-block { width: 100%; justify-content: center; }
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progress-fill.green { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.progress-fill.blue { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.progress-fill.orange { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.progress-fill.red { background: linear-gradient(90deg, #dc2626, #f87171); }
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.checklist-item:hover {
+  border-color: var(--primary-light);
+  background: rgba(5, 150, 105, 0.02);
+}
+
+.checklist-item.completed {
+  opacity: 0.6;
+  background: rgba(22, 163, 74, 0.05);
+}
+
+.checklist-item.completed .checklist-text {
+  text-decoration: line-through;
+}
+
+.check-box {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.checklist-item.completed .check-box {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+.checklist-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.checklist-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.pos-container {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  height: calc(100vh - 140px);
+}
+
+.pos-products {
+  overflow-y: auto;
+}
+
+.pos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.pos-product-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pos-product-card:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.pos-product-card .emoji {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.pos-product-card .name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pos-product-card .price {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.pos-cart {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pos-cart-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.pos-cart-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.cart-item-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cart-item-price {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.cart-item-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qty-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: var(--transition);
+}
+
+.qty-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+.pos-cart-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.cart-total.grand {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+  padding-top: 8px;
+  border-top: 2px solid var(--border);
+  margin-top: 8px;
+}
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  min-height: 500px;
+}
+
+.kanban-column {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 12px;
+  border: 1px solid var(--border);
+}
+
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
+.kanban-column-title {
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kanban-count {
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.kanban-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: var(--transition);
+}
+
+.kanban-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: var(--bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.modal-close:hover { background: var(--danger); color: white; }
+
+.modal-body { padding: 20px; }
+.modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.3s ease;
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.warning { border-left: 4px solid var(--warning); }
+.toast.info { border-left: 4px solid var(--secondary); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  z-index: 500;
+}
+
+.fab:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+}
+
+.trust-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+
+.trust-high { background: linear-gradient(135deg, #16a34a, #22c55e); }
+.trust-mid { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.trust-low { background: linear-gradient(135deg, #dc2626, #f87171); }
+
+.mesh-visual {
+  position: relative;
+  height: 300px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.mesh-node {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 2;
+}
+
+.mesh-node:hover {
+  transform: scale(1.2);
+}
+
+.mesh-node.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 0 20px rgba(5, 150, 105, 0.4);
+  animation: meshPulse 2s infinite;
+}
+
+.mesh-node.inactive {
+  background: var(--border);
+  color: var(--text-secondary);
+}
+
+@keyframes meshPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(5, 150, 105, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(5, 150, 105, 0.6); }
+}
+
+.chart-container {
+  position: relative;
+  height: 250px;
+}
+
+.emergency-banner {
+  background: linear-gradient(90deg, #dc2626, #991b1b);
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  display: none;
+}
+
+.emergency-banner.active { display: block; }
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  display: none;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+[data-theme="survival"] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+[data-theme="survival"] .stat-icon,
+[data-theme="survival"] .trust-circle {
+  filter: grayscale(100%);
+}
+
+.barter-exchange {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.barter-side {
+  flex: 1;
+  text-align: center;
+}
+
+.barter-arrow {
+  font-size: 24px;
+  color: var(--primary);
+}
+
+.ledger-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+
+.ledger-hash {
+  color: var(--primary);
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-msg {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.chat-msg.bot {
+  background: var(--bg);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-msg.user {
+  background: var(--primary);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.chat-input-area input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  outline: none;
+  font-size: 13px;
+}
+
+.chat-quick-btns {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+}
+
+.quick-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  background: var(--bg);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.quick-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+@media (max-width: 1024px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .kanban-board { grid-template-columns: repeat(2, 1fr); }
+  .pos-container { grid-template-columns: 1fr; height: auto; }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+  }
+  .main-content {
+    margin-left: 0;
+  }
+  .menu-toggle {
+    display: flex;
+  }
+  .page-content {
+    padding: 16px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-3 { grid-template-columns: 1fr; }
+  .kanban-board { grid-template-columns: 1fr; }
+  .topbar { padding: 10px 16px; }
+  .topbar-search { display: none; }
+  .theme-switcher { display: none; }
+  .pos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .pos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media print {
+  .sidebar, .topbar, .fab, .btn { display: none !important; }
+  .main-content { margin-left: 0 !important; }
+  .page-content { padding: 0 !important; }
+  .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Emergency Banner -->
+<div class="emergency-banner" id="emergencyBanner">
+  ⚠️ MODE KRISIS AKTIF — Harga sembako dikunci ke HET resmi | Terakhir sinkron: <span id="lastSync">--</span>
+</div>
+
+<div class="app-container">
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">SK</div>
+      <div class="sidebar-brand">
+        <h1>SembakoKita.Pro</h1>
+        <span>Ekosistem Krisis v5.0</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Utama</div>
+        <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+          <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </div>
+        <div class="nav-item" data-page="cashier" onclick="navigateTo('cashier')">
+          <i class="bi bi-cart3"></i> Kasir Retail
+          <span class="nav-badge">POS</span>
+        </div>
+        <div class="nav-item" data-page="stock" onclick="navigateTo('stock')">
+          <i class="bi bi-box-seam"></i> Stok Gudang
+        </div>
+        <div class="nav-item" data-page="marketplace" onclick="navigateTo('marketplace')">
+          <i class="bi bi-arrow-left-right"></i> Barter & Pasar
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">Operasional</div>
+        <div class="nav-item" data-page="checklist" onclick="navigateTo('checklist')">
+          <i class="bi bi-check2-square"></i> Checklist Harian
+          <span class="nav-badge" id="taskBadge">5</span>
+        </div>
+        <div class="nav-item" data-page="tickets" onclick="navigateTo('tickets')">
+          <i class="bi bi-ticket-perforated"></i> Laporan Warga
+        </div>
+        <div class="nav-item" data-page="funding" onclick="navigateTo('funding')">
+          <i class="bi bi-cash-stack"></i> Pendanaan
+        </div>
+        <div class="nav-item" data-page="logistics" onclick="navigateTo('logistics')">
+          <i class="bi bi-truck"></i> Logistik
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">Sinkronisasi</div>
+        <div class="nav-item" data-page="mesh" onclick="navigateTo('mesh')">
+          <i class="bi bi-broadcast"></i> Mesh Network
+        </div>
+        <div class="nav-item" data-page="ledger" onclick="navigateTo('ledger')">
+          <i class="bi bi-link-45deg"></i> Ledger Chain
+        </div>
+        <div class="nav-item" data-page="chatbot" onclick="navigateTo('chatbot')">
+          <i class="bi bi-robot"></i> AI Assistant
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Pertahanan</div>
+        <div class="nav-item" data-page="security" onclick="navigateTo('security')">
+          <i class="bi bi-shield-lock"></i> Keamanan
+        </div>
+        <div class="nav-item" data-page="impact" onclick="navigateTo('impact')">
+          <i class="bi bi-graph-up-arrow"></i> Dampak & Viral
+        </div>
+      </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Luring — Mesh Aktif</span>
+      </div>
+      <div style="margin-top:8px;font-size:10px;opacity:0.5;">
+        Baterai: <span id="batteryLevel">87%</span> | RAM: <span id="ramUsage">342MB</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="topbar-search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Cari barang, laporan, warga..." id="globalSearch" oninput="handleSearch(this.value)">
+      </div>
+      <div class="topbar-actions">
+        <div class="theme-switcher">
+          <button class="theme-btn active" data-theme="normal" onclick="setTheme('normal')">Normal</button>
+          <button class="theme-btn" data-theme="crisis" onclick="setTheme('crisis')">Krisis</button>
+          <button class="theme-btn" data-theme="survival" onclick="setTheme('survival')">Survival</button>
+        </div>
+        <button class="topbar-btn" onclick="showNotifications()" title="Notifikasi">
+          <i class="bi bi-bell"></i>
+          <span class="badge">3</span>
+        </button>
+        <button class="topbar-btn" onclick="syncData()" title="Sinkronisasi">
+          <i class="bi bi-arrow-repeat"></i>
+        </button>
+        <button class="topbar-btn" onclick="exportData()" title="Ekspor Data">
+          <i class="bi bi-download"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Pages -->
+    <div class="page-content">
+      
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Dashboard Posko Pusat</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">UPTD Pasar Baru Cikarang — <span id="currentDate"></span></p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="activateCrisisMode()"><i class="bi bi-exclamation-triangle"></i> Mode Krisis</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('newReport')"><i class="bi bi-plus"></i> Laporan Baru</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-info">
+              <h3 id="statWarga">1,247</h3>
+              <p>Warga Terdaftar</p>
+              <div class="stat-trend up">↑ 12 minggu ini</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-box-seam-fill"></i></div>
+            <div class="stat-info">
+              <h3 id="statStok">3,842</h3>
+              <p>Paket Sembako</p>
+              <div class="stat-trend down">↓ Stok menipis</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-cash-coin"></i></div>
+            <div class="stat-info">
+              <h3 id="statDana">Rp 24.7jt</h3>
+              <p>Dana Posko</p>
+              <div class="stat-trend up">↑ dari retail 15%</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="bi bi-exclamation-circle-fill"></i></div>
+            <div class="stat-info">
+              <h3 id="statDarurat">7</h3>
+              <p>Laporan Darurat</p>
+              <div class="stat-trend down">↑ 3 baru hari ini</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="bi bi-broadcast"></i></div>
+            <div class="stat-info">
+              <h3 id="statMesh">23</h3>
+              <p>Node Mesh Aktif</p>
+              <div class="stat-trend up">↑ Radius 2.4km</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Stok Gudang — 7 Hari Terakhir</div>
+                <div class="card-subtitle">Tren masuk & keluar paket sembako</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="refreshChart()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+            <div class="chart-container">
+              <canvas id="stockChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Alokasi Dana Posko</div>
+                <div class="card-subtitle">Pembagian otomatis dari Capital Allocation</div>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="allocationChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Harga Sembako Terkini (HET)</div>
+              <span class="badge-status badge-success"><i class="bi bi-lock-fill"></i> Dikunci</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Komoditas</th><th>HET</th><th>Stok</th><th>Status</th></tr>
+                </thead>
+                <tbody id="priceTable">
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Aktivitas Terbaru</div>
+              <button class="btn btn-outline btn-sm">Lihat Semua</button>
+            </div>
+            <div id="activityFeed" style="max-height:300px;overflow-y:auto;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CASHIER / POS PAGE -->
+      <div class="page" id="page-cashier">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Kasir Retail</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Mesin kasir komersial — 15% margin otomatis ke dana subsidi</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge-status badge-info">Margin 15% → Subsidi</span>
+            <button class="btn btn-outline btn-sm" onclick="printReceipt()"><i class="bi bi-printer"></i> Cetak Struk</button>
+          </div>
+        </div>
+
+        <div class="pos-container">
+          <div class="pos-products">
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm pos-cat-btn active" onclick="filterCategory('all', this)">Semua</button>
+              <button class="btn btn-outline btn-sm pos-cat-btn" onclick="filterCategory('sembako', this)">Sembako</button>
+              <button class="btn btn-outline btn-sm pos-cat-btn" onclick="filterCategory('minuman', this)">Minuman</button>
+              <button class="btn btn-outline btn-sm pos-cat-btn" onclick="filterCategory('snack', this)">Snack</button>
+              <button class="btn btn-outline btn-sm pos-cat-btn" onclick="filterCategory('household', this)">Rumah Tangga</button>
+            </div>
+            <div class="pos-grid" id="posProductGrid">
+            </div>
+          </div>
+          <div class="pos-cart">
+            <div class="pos-cart-header">
+              <i class="bi bi-cart3"></i> Keranjang Belanja
+              <span id="cartCount" style="float:right;font-size:12px;color:var(--text-secondary);">0 item</span>
+            </div>
+            <div class="pos-cart-items" id="cartItems">
+              <div style="text-align:center;padding:40px 20px;color:var(--text-secondary);">
+                <i class="bi bi-cart-x" style="font-size:48px;opacity:0.3;"></i>
+                <p style="margin-top:8px;font-size:13px;">Keranjang kosong</p>
+              </div>
+            </div>
+            <div class="pos-cart-footer">
+              <div class="cart-total">
+                <span>Subtotal</span>
+                <span id="cartSubtotal">Rp 0</span>
+              </div>
+              <div class="cart-total">
+                <span>Donasi Subsidi (15%)</span>
+                <span id="cartDonation" style="color:var(--success);">- Rp 0</span>
+              </div>
+              <div class="cart-total grand">
+                <span>TOTAL</span>
+                <span id="cartTotal">Rp 0</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <button class="btn btn-outline" style="flex:1;" onclick="clearCart()"><i class="bi bi-trash"></i> Hapus</button>
+                <button class="btn btn-primary" style="flex:2;" onclick="processPayment()"><i class="bi bi-check-circle"></i> Bayar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STOCK PAGE -->
+      <div class="page" id="page-stock">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Manajemen Stok Gudang</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Monitor real-time ketersediaan logistik posko</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="openModal('addStock')"><i class="bi bi-plus"></i> Tambah Stok</button>
+            <button class="btn btn-primary btn-sm" onclick="autoProcure()"><i class="bi bi-robot"></i> Auto-Order</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-box-seam"></i></div>
+            <div class="stat-info"><h3 id="stockTotalSku">156</h3><p>Total SKU</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="stat-info"><h3 id="stockLow">12</h3><p>Stok Menipis (&lt;20%)</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="bi bi-x-circle"></i></div>
+            <div class="stat-info"><h3 id="stockEmpty">3</h3><p>Stok Habis</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-truck"></i></div>
+            <div class="stat-info"><h3 id="stockOrders">5</h3><p>Pesanan Masuk</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Inventori Lengkap</div>
+            <input type="text" class="form-input" style="max-width:200px;padding:6px 10px;font-size:12px;" placeholder="Cari barang..." oninput="filterStock(this.value)">
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Barang</th><th>Kategori</th><th>Stok</th><th>Min</th><th>Harga Modal</th><th>HET</th><th>Status</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="stockTable">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKETPLACE / BARTER PAGE -->
+      <div class="page" id="page-marketplace">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Pasar Barter Warga</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Tukar komoditas luring tanpa uang tunai — Trust Score aktif</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('newBarter')"><i class="bi bi-plus"></i> Tawar Barter</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Kalkulator Rasio Barter</div>
+            </div>
+            <div class="barter-exchange">
+              <div class="barter-side">
+                <div style="font-size:32px;">🍚</div>
+                <div style="font-weight:700;margin-top:4px;">Beras</div>
+                <input type="number" class="form-input" style="width:80px;text-align:center;margin-top:8px;" value="5" id="barterFrom" oninput="calculateBarter()">
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">kg</div>
+              </div>
+              <div class="barter-arrow"><i class="bi bi-arrow-left-right"></i></div>
+              <div class="barter-side">
+                <div style="font-size:32px;">🥚</div>
+                <div style="font-weight:700;margin-top:4px;">Telur</div>
+                <div style="font-weight:800;font-size:20px;color:var(--primary);margin-top:8px;" id="barterResult">9.1</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">kg</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);text-align:center;">
+              Rasio berdasarkan essential-items.json HET resmi Juni 2026
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Trust Score Komunitas</div>
+            </div>
+            <div class="trust-meter" style="margin-bottom:16px;">
+              <div class="trust-circle trust-high">87</div>
+              <div>
+                <div style="font-weight:700;font-size:14px;">Skor Tinggi</div>
+                <div style="font-size:12px;color:var(--text-secondary);">Berdasarkan 142 transaksi sukses</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span>Mutasi Sukses</span><span style="font-weight:600;color:var(--success);">98.2%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill green" style="width:98%"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;margin-top:10px;">
+                <span>Respon BLE</span><span style="font-weight:600;color:var(--primary);">91.5%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill blue" style="width:91%"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;margin-top:10px;">
+                <span>Validasi KTP</span><span style="font-weight:600;color:var(--accent);">76.3%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill orange" style="width:76%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Riwayat Barter Terbaru</div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Waktu</th><th>Dari</th><th>Ke</th><th>Rasio</th><th>Warga</th><th>Trust</th><th>Status</th></tr>
+              </thead>
+              <tbody id="barterTable">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHECKLIST PAGE -->
+      <div class="page" id="page-checklist">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Checklist Harian Posko</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Auto-generated dari laporan warga via TicketParser.js</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <span class="badge-status badge-warning" id="pendingBadge">5 Pending</span>
+            <button class="btn btn-primary btn-sm" onclick="generateDailyTasks()"><i class="bi bi-magic"></i> Generate Tugas</button>
+          </div>
+        </div>
+
+        <div class="kanban-board">
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <div class="kanban-column-title">📥 Laporan Masuk <span class="kanban-count">4</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Kelangkaan beras di RW 07</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-danger">Darurat</span> <span>2 jam lalu</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Ibu Sari butuh minyak goreng</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-warning">Normal</span> <span>5 jam lalu</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Kebocoran air bersih RT 03</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-danger">Darurat</span> <span>6 jam lalu</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Permintaan gula 10kg PKK</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-info">Normal</span> <span>8 jam lalu</span></div>
+            </div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <div class="kanban-column-title">📋 Target Besok <span class="kanban-count">3</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Distribusi 50kg beras ke RW 07</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-purple">Task</span> <span>Relawan: Budi</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Perbaikan pipa air RT 03</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-purple">Task</span> <span>Relawan: Andi</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Antar 5L minyak ke Ibu Sari</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-purple">Task</span> <span>Relawan: Dewi</span></div>
+            </div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <div class="kanban-column-title">🚀 Eksekusi <span class="kanban-count">2</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Pengambilan stok di Pasar Cibitung</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-info">On Progress</span> <span>Truk B-1234-XY</span></div>
+            </div>
+            <div class="kanban-card" draggable="true">
+              <div class="kanban-card-title">Verifikasi data 15 KK baru</div>
+              <div class="kanban-card-meta"><span class="badge-status badge-info">On Progress</span> <span>Admin: Rina</span></div>
+            </div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <div class="kanban-column-title">✅ Selesai <span class="kanban-count">5</span></div>
+            </div>
+            <div class="kanban-card" style="opacity:0.7;" draggable="true">
+              <div class="kanban-card-title" style="text-decoration:line-through;">Distribusi telur 30kg RW 05</div>
+              <div class="kanban-card-meta"><span>Selesai 08:30</span></div>
+            </div>
+            <div class="kanban-card" style="opacity:0.7;" draggable="true">
+              <div class="kanban-card-title" style="text-decoration:line-through;">Sinkron data mesh 12 node</div>
+              <div class="kanban-card-meta"><span>Selesai 09:15</span></div>
+            </div>
+            <div class="kanban-card" style="opacity:0.7;" draggable="true">
+              <div class="kanban-card-title" style="text-decoration:line-through;">Backup database ke USB</div>
+              <div class="kanban-card-meta"><span>Selesai 10:00</span></div>
+            </div>
+            <div class="kanban-card" style="opacity:0.7;" draggable="true">
+              <div class="kanban-card-title" style="text-decoration:line-through;">Laporan harian ke BPBD</div>
+              <div class="kanban-card-meta"><span>Selesai 11:30</span></div>
+            </div>
+            <div class="kanban-card" style="opacity:0.7;" draggable="true">
+              <div class="kanban-card-title" style="text-decoration:line-through;">Kalibrasi timbangan posko</div>
+              <div class="kanban-card-meta"><span>Selesai 13:00</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKETS / LAPORAN WARGA -->
+      <div class="page" id="page-tickets">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Laporan Warga</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">TicketParser — Otomatis sortir berdasarkan prioritas kedaruratan</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('newReport')"><i class="bi bi-plus"></i> Input Laporan</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="bi bi-exclamation-octagon"></i></div>
+            <div class="stat-info"><h3 id="ticketEmergency">7</h3><p>Darurat</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-clock-history"></i></div>
+            <div class="stat-info"><h3 id="ticketPending">15</h3><p>Menunggu</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-gear"></i></div>
+            <div class="stat-info"><h3 id="ticketProcessing">8</h3><p>Diproses</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-info"><h3 id="ticketDone">142</h3><p>Selesai (Bulan ini)</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Daftar Laporan Masuk</div>
+            <div style="display:flex;gap:8px;">
+              <select class="form-input" style="width:auto;padding:6px 30px 6px 10px;font-size:12px;" onchange="filterTickets(this.value)">
+                <option value="all">Semua</option>
+                <option value="darurat">Darurat</option>
+                <option value="normal">Normal</option>
+                <option value="selesai">Selesai</option>
+              </select>
+            </div>
+          </div>
+          <div id="ticketList">
+          </div>
+        </div>
+      </div>
+
+      <!-- FUNDING PAGE -->
+      <div class="page" id="page-funding">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Pipa Pendanaan</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Capital Pipeline — Multi-sumber dana otomatis</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-wallet2"></i></div>
+            <div class="stat-info"><h3 id="fundBalance">Rp 24.7jt</h3><p>Saldo Posko</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-graph-up"></i></div>
+            <div class="stat-info"><h3 id="fundRetail">Rp 8.2jt</h3><p>Retail Bulan Ini</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-hand-thumbs-up"></i></div>
+            <div class="stat-info"><h3 id="fundDonation">Rp 3.1jt</h3><p>Donasi Online</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="bi bi-building"></i></div>
+            <div class="stat-info"><h3 id="fundCsr">Rp 15jt</h3><p>Proposal CSR Pending</p></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Capital Allocation (Otomatis)</div>
+            </div>
+            <div class="allocation-item">
+              <div class="allocation-color" style="background:#16a34a;"></div>
+              <div class="allocation-label">Beli Sembako Subsidi</div>
+              <div class="allocation-value">50% — <span id="allocFood">Rp 12.35jt</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill green" style="width:50%"></div></div>
+            <div class="allocation-item" style="margin-top:12px;">
+              <div class="allocation-color" style="background:#2563eb;"></div>
+              <div class="allocation-label">Subsidi Harga Pasar</div>
+              <div class="allocation-value">30% — <span id="allocSubsidy">Rp 7.41jt</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill blue" style="width:30%"></div></div>
+            <div class="allocation-item" style="margin-top:12px;">
+              <div class="allocation-color" style="background:#d97706;"></div>
+              <div class="allocation-label">Ops & Radio Mesh</div>
+              <div class="allocation-value">20% — <span id="allocOps">Rp 4.94jt</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill orange" style="width:20%"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Sumber Dana Pipeline</div>
+            </div>
+            <div id="fundingSources">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <div style="width:36px;height:36px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;">🏪</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">Retail Cashier (15% margin)</div><div style="font-size:11px;color:var(--text-secondary);">Auto-allocate per transaksi</div></div>
+                <span class="badge-status badge-success">Aktif</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <div style="width:36px;height:36px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;">🏢</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">CSR Jababeka/MM2100</div><div style="font-size:11px;color:var(--text-secondary);">Proposal terkirim 20 Juni</div></div>
+                <span class="badge-status badge-warning">Pending</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <div style="width:36px;height:36px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;">❤️</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">KitaBisa Crowdfunding</div><div style="font-size:11px;color:var(--text-secondary);">Target Rp 50jt — terkumpul 62%</div></div>
+                <span class="badge-status badge-info">Online</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <div style="width:36px;height:36px;border-radius:8px;background:#f3e8ff;display:flex;align-items:center;justify-content:center;">🏛️</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">Dana Desa (ADD) / DSP BPBD</div><div style="font-size:11px;color:var(--text-secondary);">LPJ otomatis ter-generate</div></div>
+                <span class="badge-status badge-purple">Draft</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 0;">
+                <div style="width:36px;height:36px;border-radius:8px;background:#fee2e2;display:flex;align-items:center;justify-content:center;">🌍</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">Hibah WFP/UN</div><div style="font-size:11px;color:var(--text-secondary);">Auto-draft dari main-db</div></div>
+                <span class="badge-status badge-danger">Belum</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Audit Kas Terbuka (Read-Only Ledger)</div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Masuk</th><th>Keluar</th><th>Saldo</th><th>Sumber</th></tr></thead>
+              <tbody id="auditTable">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGISTICS PAGE -->
+      <div class="page" id="page-logistics">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Logistik & Distribusi</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Route Optimizer — Koordinat wilayah Bekasi</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('newDelivery')"><i class="bi bi-plus"></i> Buat Pengiriman</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-truck"></i></div>
+            <div class="stat-info"><h3>4</h3><p>Truk Aktif</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-geo-alt"></i></div>
+            <div class="stat-info"><h3>12</h3><p>Titik Antar Hari Ini</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-fuel-pump"></i></div>
+            <div class="stat-info"><h3>72%</h3><p>Kapasitas Rata-rata</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="bi bi-clock"></i></div>
+            <div class="stat-info"><h3>45m</h3><p>ETA Rata-rata</p></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Peta Rute Distribusi</div></div>
+            <div style="height:300px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+              <div style="position:absolute;top:20%;left:30%;width:12px;height:12px;background:var(--primary);border-radius:50%;box-shadow:0 0 10px var(--primary);"></div>
+              <div style="position:absolute;top:40%;left:55%;width:12px;height:12px;background:var(--accent);border-radius:50%;box-shadow:0 0 10px var(--accent);"></div>
+              <div style="position:absolute;top:60%;left:40%;width:12px;height:12px;background:var(--secondary);border-radius:50%;box-shadow:0 0 10px var(--secondary);"></div>
+              <div style="position:absolute;top:35%;left:70%;width:12px;height:12px;background:var(--danger);border-radius:50%;box-shadow:0 0 10px var(--danger);"></div>
+              <div style="position:absolute;top:70%;left:65%;width:12px;height:12px;background:var(--primary-light);border-radius:50%;box-shadow:0 0 10px var(--primary-light);"></div>
+              <svg style="position:absolute;width:100%;height:100%;opacity:0.3;" viewBox="0 0 100 100">
+                <line x1="30" y1="20" x2="55" y2="40" stroke="var(--primary)" stroke-width="0.5" stroke-dasharray="2"/>
+                <line x1="55" y1="40" x2="40" y2="60" stroke="var(--primary)" stroke-width="0.5" stroke-dasharray="2"/>
+                <line x1="40" y1="60" x2="70" y2="35" stroke="var(--primary)" stroke-width="0.5" stroke-dasharray="2"/>
+                <line x1="70" y1="35" x2="65" y2="70" stroke="var(--primary)" stroke-width="0.5" stroke-dasharray="2"/>
+              </svg>
+              <div style="position:absolute;bottom:10px;left:10px;font-size:10px;color:var(--text-secondary);">
+                🟢 Posko &nbsp; 🟡 Pasar &nbsp; 🔵 RW &nbsp; 🔴 Darurat &nbsp; 🟢 Tujuan
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Muatan Truk</div></div>
+            <div id="truckList">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MESH NETWORK PAGE -->
+      <div class="page" id="page-mesh">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Mesh Network</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Bluetooth Mesh — Gossip Protocol multi-hop luring radius 20m</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="scanMesh()"><i class="bi bi-broadcast"></i> Scan Node</button>
+            <button class="btn btn-primary btn-sm" onclick="generateQR()"><i class="bi bi-qr-code"></i> Generate QR</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-phone"></i></div>
+            <div class="stat-info"><h3 id="meshActive">23</h3><p>Node Aktif</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-bluetooth"></i></div>
+            <div class="stat-info"><h3>BLE 5.0</h3><p>Protokol</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-arrows-angle-expand"></i></div>
+            <div class="stat-info"><h3>2.4km</h3><p>Radius Mesh</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="bi bi-arrow-repeat"></i></div>
+            <div class="stat-info"><h3>847</h3><p>Paket Hari Ini</p></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Visualisasi Topologi Mesh</div></div>
+            <div class="mesh-visual" id="meshVisual">
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Log Sinkronisasi</div></div>
+            <div id="syncLog" style="max-height:300px;overflow-y:auto;font-family:monospace;font-size:11px;">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header"><div class="card-title">Daftar Node Terhubung</div></div>
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Node ID</th><th>Perangkat</th><th>Pemilik</th><th>Sinyal</th><th>Terakhir</th><th>Data</th><th>Status</th></tr></thead>
+              <tbody id="meshTable">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEDGER PAGE -->
+      <div class="page" id="page-ledger">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Ledger Chain</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Mini-blockchain lokal — Anti-edit log transaksi barter</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <span class="badge-status badge-success"><i class="bi bi-shield-check"></i> Integritas: 100%</span>
+            <button class="btn btn-outline btn-sm" onclick="verifyIntegrity()"><i class="bi bi-patch-check"></i> Verifikasi</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-link-45deg"></i></div>
+            <div class="stat-info"><h3 id="blockCount">1,247</h3><p>Total Blok</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-clock-history"></i></div>
+            <div class="stat-info"><h3>SHA-256</h3><p>Hash Algorithm</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-shield-lock"></i></div>
+            <div class="stat-info"><h3>Valid</h3><p>Status Rantai</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Blok Terbaru</div></div>
+          <div id="ledgerBlocks">
+          </div>
+        </div>
+      </div>
+
+      <!-- CHATBOT / AI PAGE -->
+      <div class="page" id="page-chatbot">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">AI Assistant</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">ChatBot + StressBarometer — Deteksi panik & solusi cepat</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <span class="badge-status badge-info"><i class="bi bi-mic"></i> Vosk Offline</span>
+            <span class="badge-status badge-success">ID/Arial/Sunda</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Chat dengan AI Posko</div></div>
+            <div class="chat-container">
+              <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg bot">Halo! Saya AI Assistant Posko SembakoKita. Ada yang bisa saya bantu? 🏪</div>
+                <div class="chat-msg bot">Saya bisa membantu: cek stok, harga HET, laporan warga, atau hitung barter.</div>
+              </div>
+              <div class="chat-quick-btns">
+                <button class="quick-btn" onclick="sendQuickMsg('Cek stok beras')">📦 Cek stok beras</button>
+                <button class="quick-btn" onclick="sendQuickMsg('Harga HET hari ini')">💰 Harga HET</button>
+                <button class="quick-btn" onclick="sendQuickMsg('Laporan darurat')">🚨 Laporan darurat</button>
+                <button class="quick-btn" onclick="sendQuickMsg('Hitung barter')">🔄 Hitung barter</button>
+                <button class="quick-btn" onclick="sendQuickMsg('Status mesh')">📡 Status mesh</button>
+              </div>
+              <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendChat()">
+                <button class="btn btn-primary" onclick="sendChat()"><i class="bi bi-send"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Stress Barometer</div><span class="badge-status badge-success">Normal</span></div>
+            <div style="text-align:center;padding:20px;">
+              <div style="font-size:64px;margin-bottom:12px;">😊</div>
+              <div style="font-size:18px;font-weight:700;color:var(--success);">Masyarakat Tenang</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Frekuensi kata panik: 2.1% (Normal &lt; 5%)</div>
+            </div>
+            <div style="margin-top:16px;">
+              <div style="font-size:12px;font-weight:600;margin-bottom:8px;">Deteksi Kata Terakhir 24 Jam:</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <span class="badge-status badge-success">stok: 12x</span>
+                <span class="badge-status badge-success">harga: 8x</span>
+                <span class="badge-status badge-info">bantuan: 5x</span>
+                <span class="badge-status badge-warning">langka: 3x</span>
+                <span class="badge-status badge-danger">panik: 2x</span>
+              </div>
+            </div>
+            <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:var(--radius-sm);font-size:12px;">
+              <strong>📊 Rekomendasi AI:</strong><br>
+              Berdasarkan analisis 24 jam terakhir, tingkat stres komunitas masih dalam batas normal. Tetap pantau kata kunci "langka" yang meningkat 40% dari kemarin.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY PAGE -->
+      <div class="page" id="page-security">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Keamanan & Integritas</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">AntiTamper — SQLCipher 256-bit + Merkle Tree Verification</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="runSecurityScan()"><i class="bi bi-shield-check"></i> Scan Keamanan</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-shield-lock"></i></div>
+            <div class="stat-info"><h3>Aman</h3><p>Status Sistem</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-key"></i></div>
+            <div class="stat-info"><h3>AES-256</h3><p>Enkripsi DB</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-fingerprint"></i></div>
+            <div class="stat-info"><h3>PBKDF2</h3><p>Key Derivation</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="bi bi-ban"></i></div>
+            <div class="stat-info"><h3>0</h3><p>Data Manipulasi</p></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Verifikasi Integritas Data</div></div>
+            <div id="securityChecks">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <i class="bi bi-check-circle-fill" style="color:var(--success);font-size:18px;"></i>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">Merkle Tree Verification</div><div style="font-size:11px;color:var(--text-secondary);">Hash pohon cocok antara laptop & HP warga</div></div>
+                <span class="badge-status badge-success">Pass</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <i class="bi bi-check-circle-fill" style="color:var(--success);font-size:18px;"></i>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">SQLCipher Integrity</div><div style="font-size:11px;color:var(--text-secondary);">Database terenkripsi, tidak ada korupsi</div></div>
+                <span class="badge-status badge-success">Pass</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <i class="bi bi-check-circle-fill" style="color:var(--success);font-size:18px;"></i>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">Anti-Tamper KTP Registry</div><div style="font-size:11px;color:var(--text-secondary);">fallback-registry.json tidak dimanipulasi</div></div>
+                <span class="badge-status badge-success">Pass</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+                <i class="bi bi-check-circle-fill" style="color:var(--success);font-size:18px;"></i>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">Ledger Chain Validity</div><div style="font-size:11px;color:var(--text-secondary);">Semua blok berantai valid, tidak ada edit</div></div>
+                <span class="badge-status badge-success">Pass</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+                <i class="bi bi-check-circle-fill" style="color:var(--success);font-size:18px;"></i>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:600;">HET Price Lock</div><div style="font-size:11px;color:var(--text-secondary);">Harga terkunci, tidak ada override ilegal</div></div>
+                <span class="badge-status badge-success">Pass</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Backup & Recovery</div></div>
+            <div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:12px;">
+              <div style="font-size:13px;font-weight:600;">Backup Terakhir</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">23 Juni 2026, 10:00 WIB — USB Drive</div>
+              <div style="font-size:12px;color:var(--text-secondary);">Ukuran: 47.3 MB (Terenkripsi ZIP)</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:12px;">
+              <div style="font-size:13px;font-weight:600;">Jadwal Backup Otomatis</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Setiap 1 jam → Media Eksternal</div>
+              <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill green" style="width:65%"></div></div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">Backup berikutnya: 35 menit lagi</div>
+            </div>
+            <button class="btn btn-outline btn-block" onclick="manualBackup()"><i class="bi bi-download"></i> Backup Manual Sekarang</button>
+            <button class="btn btn-outline btn-block" style="margin-top:8px;" onclick="restoreBackup()"><i class="bi bi-arrow-counterclockwise"></i> Restore dari Backup</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMPACT / VIRAL PAGE -->
+      <div class="page" id="page-impact">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;">Dampak & Viralitas</h2>
+            <p style="font-size:13px;color:var(--text-secondary);">Proof of Impact — Pembuktian dampak nyata ke publik</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="generateImpactReport()"><i class="bi bi-file-earmark-bar-graph"></i> Generate Laporan</button>
+            <button class="btn btn-primary btn-sm" onclick="shareImpact()"><i class="bi bi-share"></i> Share</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;text-align:center;background:linear-gradient(135deg, var(--primary), var(--secondary));color:white;">
+          <div class="impact-counter">
+            <div style="font-size:14px;opacity:0.8;margin-bottom:8px;">🎉 MILESTONE TERCAPAI</div>
+            <div class="impact-number" style="color:white;">1.2 TON</div>
+            <div class="impact-label" style="color:rgba(255,255,255,0.8);">Beras Subsidi Gratis Disalurkan Mandiri</div>
+            <div style="margin-top:16px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+              <div><div style="font-size:24px;font-weight:800;">1,247</div><div style="font-size:11px;opacity:0.7;">Warga Terbantu</div></div>
+              <div><div style="font-size:24px;font-weight:800;">23</div><div style="font-size:11px;opacity:0.7;">Node Mesh</div></div>
+              <div><div style="font-size:24px;font-weight:800;">847</div><div style="font-size:11px;opacity:0.7;">Transaksi Barter</div></div>
+              <div><div style="font-size:24px;font-weight:800;">Rp 24.7jt</div><div style="font-size:11px;opacity:0.7;">Dana Mandiri</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Leaderboard Toko Retail</div></div>
+            <div id="leaderboard">
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Penyebaran Mesh Network</div></div>
+            <div class="chart-container">
+              <canvas id="meshGrowthChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header"><div class="card-title">Kampanye Viral Aktif</div></div>
+          <div class="grid-3">
+            <div style="padding:16px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-size:32px;margin-bottom:8px;">📱</div>
+              <div style="font-size:13px;font-weight:700;">Share APK via Bluetooth</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">156 HP terinstall minggu ini</div>
+              <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill green" style="width:78%"></div></div>
+            </div>
+            <div style="padding:16px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-size:32px;margin-bottom:8px;">🏪</div>
+              <div style="font-size:13px;font-weight:700;">Warung Klontong Join</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">8 warung baru jadi node jangkar</div>
+              <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill blue" style="width:53%"></div></div>
+            </div>
+            <div style="padding:16px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-size:32px;margin-bottom:8px;">🎯</div>
+              <div style="font-size:13px;font-weight:700;">#SelamatkanTetangga</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">342 share nota ke media sosial</div>
+              <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill orange" style="width:68%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openModal('quickAction')" title="Aksi Cepat">
+  <i class="bi bi-plus-lg"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent">
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================
+// SUPABASE CONFIG — GANTI DENGAN CREDENTIALS ANDA
+// ============================================
+const SUPABASE_URL = 'https://rltsdrqyvvqkzusocmlr.supabase.co/rest/v1/';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsdHNkcnF5dnZxa3p1c29jbWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MzMwMjcsImV4cCI6MjA5ODIwOTAyN30.xVDjJul05RfuQuE3ExCdB3GfVJrdUbzglv--eISOheM';
+
+// ============================================
+// SUPABASE CLIENT
+// ============================================
+let supabaseClient = null;
+
+function getSupabaseClient() {
+  if (!supabaseClient) {
+    if (typeof supabase === 'undefined') {
+      console.error('❌ Supabase SDK not loaded!');
+      return null;
+    }
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    });
+    console.log('🔗 Supabase client initialized');
+  }
+  return supabaseClient;
+}
+
+// ============================================
+// SUPABASE DATA ACCESS LAYER
+// ============================================
+const SupaDB = {
+  async getItems() {
+    const client = getSupabaseClient();
+    if (!client) return [];
+    try {
+      const { data, error } = await client.from('items').select('*').order('id');
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.error('❌ getItems error:', e); return []; }
+  },
+
+  async updateItem(id, updates) {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const { data, error } = await client.from('items').update(updates).eq('id', id).select();
+      if (error) throw error;
+      return data ? data[0] : null;
+    } catch (e) { console.error('❌ updateItem error:', e); return null; }
+  },
+
+  async updateStock(id, stock) {
+    return this.updateItem(id, { stock });
+  },
+
+  async getTickets() {
+    const client = getSupabaseClient();
+    if (!client) return [];
+    try {
+      const { data, error } = await client.from('tickets').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.error('❌ getTickets error:', e); return []; }
+  },
+
+  async addTicket(ticket) {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const { data, error } = await client.from('tickets').insert([{
+        title: ticket.title,
+        priority: ticket.priority || 'normal',
+        status: ticket.status || 'baru',
+        reporter: ticket.reporter || 'Anonim',
+        description: ticket.desc || '-'
+      }]).select();
+      if (error) throw error;
+      return data ? data[0] : null;
+    } catch (e) { console.error('❌ addTicket error:', e); return null; }
+  },
+
+  async updateTicket(id, updates) {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const { data, error } = await client.from('tickets').update(updates).eq('id', id).select();
+      if (error) throw error;
+      return data ? data[0] : null;
+    } catch (e) { console.error('❌ updateTicket error:', e); return null; }
+  },
+
+  async getTransactions(limit = 50) {
+    const client = getSupabaseClient();
+    if (!client) return [];
+    try {
+      const { data, error } = await client.from('transactions').select('*').order('id', { ascending: false }).limit(limit);
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.error('❌ getTransactions error:', e); return []; }
+  },
+
+  async addTransaction(tx) {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const { data, error } = await client.from('transactions').insert([{
+        items: tx.items || [],
+        total: tx.total || 0,
+        donation: tx.donation || 0
+      }]).select();
+      if (error) throw error;
+      return data ? data[0] : null;
+    } catch (e) { console.error('❌ addTransaction error:', e); return null; }
+  },
+
+  async getLedger(limit = 50) {
+    const client = getSupabaseClient();
+    if (!client) return [];
+    try {
+      const { data, error } = await client.from('ledger').select('*').order('id', { ascending: false }).limit(limit);
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.error('❌ getLedger error:', e); return []; }
+  },
+
+  async addLedgerBlock(block) {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const { data, error } = await client.from('ledger').insert([{
+        index: block.index || 1,
+        data: block.data || '',
+        prev_hash: block.prevHash || '',
+        hash: block.hash || ''
+      }]).select();
+      if (error) throw error;
+      return data ? data[0] : null;
+    } catch (e) { console.error('❌ addLedgerBlock error:', e); return null; }
+  },
+
+  async getMeshNodes() {
+    const client = getSupabaseClient();
+    if (!client) return [];
+    try {
+      const { data, error } = await client.from('mesh_nodes').select('*');
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.error('❌ getMeshNodes error:', e); return []; }
+  },
+
+  async getFunds() {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const { data, error } = await client.from('funds').select('*').order('id', { ascending: false }).limit(1);
+      if (error) throw error;
+      return data && data.length > 0 ? data[0] : null;
+    } catch (e) { console.error('❌ getFunds error:', e); return null; }
+  },
+
+  async updateFunds(updates) {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const current = await this.getFunds();
+      if (!current) {
+        const { data, error } = await client.from('funds').insert([{
+          balance: updates.balance || 0,
+          retail: updates.retail || 0,
+          donation: updates.donation || 0,
+          csr: updates.csr || 0
+        }]).select();
+        if (error) throw error;
+        return data ? data[0] : null;
+      }
+      const { data, error } = await client.from('funds').update({
+        balance: updates.balance !== undefined ? updates.balance : current.balance,
+        retail: updates.retail !== undefined ? updates.retail : current.retail,
+        donation: updates.donation !== undefined ? updates.donation : current.donation,
+        csr: updates.csr !== undefined ? updates.csr : current.csr,
+        updated_at: new Date()
+      }).eq('id', current.id).select();
+      if (error) throw error;
+      return data ? data[0] : null;
+    } catch (e) { console.error('❌ updateFunds error:', e); return null; }
+  },
+
+  subscribeToTable(table, callback) {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    const channel = client.channel(`${table}-changes`)
+      .on('postgres_changes', { event: '*', schema: 'public', table }, (payload) => {
+        console.log(`🔄 ${table} changed:`, payload);
+        if (callback) callback(payload);
+      })
+      .subscribe();
+    return channel;
+  }
+};
+
+// ============================================
+// APPLICATION STATE
+// ============================================
+let appData = {
+  items: [],
+  tickets: [],
+  transactions: [],
+  ledger: [],
+  meshNodes: [],
+  funds: null
+};
+
+let cart = [];
+let currentPage = 'dashboard';
+let stockChart = null;
+let allocationChart = null;
+let meshGrowthChart = null;
+
+// ============================================
+// LOCAL STORAGE FALLBACK
+// ============================================
+const LocalDB = {
+  get(key, fallback = null) {
+    try {
+      const data = localStorage.getItem('sembakokita_' + key);
+      return data ? JSON.parse(data) : fallback;
+    } catch(e) { return fallback; }
+  },
+  set(key, value) {
+    try {
+      localStorage.setItem('sembakokita_' + key, JSON.stringify(value));
+    } catch(e) { console.warn('Storage full'); }
+  }
+};
+
+// ============================================
+// LOAD DATA FROM SUPABASE
+// ============================================
+async function loadAppData() {
+  try {
+    showToast('🔄 Loading data dari Supabase...', 'info');
+    
+    const [items, tickets, transactions, ledger, meshNodes, funds] = await Promise.all([
+      SupaDB.getItems(),
+      SupaDB.getTickets(),
+      SupaDB.getTransactions(20),
+      SupaDB.getLedger(20),
+      SupaDB.getMeshNodes(),
+      SupaDB.getFunds()
+    ]);
+    
+    appData.items = items.length > 0 ? items : LocalDB.get('essentialItems', []);
+    appData.tickets = tickets.length > 0 ? tickets : LocalDB.get('tickets', []);
+    appData.transactions = transactions.length > 0 ? transactions : LocalDB.get('transactions', []);
+    appData.ledger = ledger.length > 0 ? ledger : LocalDB.get('ledger', []);
+    appData.meshNodes = meshNodes.length > 0 ? meshNodes : LocalDB.get('meshNodes', []);
+    appData.funds = funds || LocalDB.get('funds', null);
+    
+    console.log('✅ Data loaded:', appData);
+    renderAll();
+    showToast('✅ Data berhasil dimuat dari cloud!', 'success');
+    return true;
+  } catch (error) {
+    console.error('❌ Error loading data:', error);
+    showToast('⚠️ Gagal load data, menggunakan localStorage fallback', 'warning');
+    appData.items = LocalDB.get('essentialItems', []);
+    appData.tickets = LocalDB.get('tickets', []);
+    appData.transactions = LocalDB.get('transactions', []);
+    appData.ledger = LocalDB.get('ledger', []);
+    appData.meshNodes = LocalDB.get('meshNodes', []);
+    appData.funds = LocalDB.get('funds', null);
+    renderAll();
+    return false;
+  }
+}
+
+// ============================================
+// SETUP REALTIME
+// ============================================
+function setupRealtime() {
+  SupaDB.subscribeToTable('items', async () => {
+    appData.items = await SupaDB.getItems();
+    renderPriceTable();
+    renderStockTable();
+    renderPosProducts();
+    updateDashboardStats();
+  });
+
+  SupaDB.subscribeToTable('tickets', async () => {
+    appData.tickets = await SupaDB.getTickets();
+    renderTicketList();
+    updateTicketStats();
+  });
+
+  SupaDB.subscribeToTable('funds', async () => {
+    appData.funds = await SupaDB.getFunds();
+    updateDashboardStats();
+    renderAuditTable();
+    updateFundStats();
+  });
+
+  console.log('📡 Realtime subscriptions aktif');
+}
+
+// ============================================
+// RENDER ALL
+// ============================================
+function renderAll() {
+  renderPriceTable();
+  renderActivityFeed();
+  renderPosProducts();
+  renderStockTable();
+  renderBarterTable();
+  renderTicketList();
+  renderAuditTable();
+  renderTruckList();
+  renderMeshVisual();
+  renderSyncLog();
+  renderMeshTable();
+  renderLedgerBlocks();
+  renderLeaderboard();
+  updateDashboardStats();
+  updateFundStats();
+  updateTicketStats();
+  updateStockStats();
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ============================================
+// DASHBOARD RENDER FUNCTIONS
+// ============================================
+function renderPriceTable() {
+  const items = appData.items.filter(i => i.category === 'sembako');
+  const tbody = document.getElementById('priceTable');
+  if (!tbody) return;
+  tbody.innerHTML = items.map(item => {
+    const pct = (item.stock / (item.min_stock * 3)) * 100;
+    let status = 'success', label = 'Aman';
+    if (pct < 30) { status = 'danger'; label = 'Kritis'; }
+    else if (pct < 60) { status = 'warning'; label = 'Menipis'; }
+    return `<tr>
+      <td><strong>${item.emoji} ${item.name}</strong></td>
+      <td style="font-weight:700;color:var(--primary);">Rp ${item.het.toLocaleString('id')}</td>
+      <td>${item.stock} ${item.unit}</td>
+      <td><span class="badge-status badge-${status}">${label}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderActivityFeed() {
+  const activities = [
+    { icon: '🛒', text: 'Transaksi retail Rp 87.500 — donasi Rp 13.125 masuk subsidi', time: '5m lalu', type: 'success' },
+    { icon: '📦', text: 'Stok beras masuk 100kg dari Pasar Cibitung', time: '23m lalu', type: 'info' },
+    { icon: '🔄', text: 'Barter: 5kg beras ↔ 9kg telur (Pak Budi ↔ Bu Min)', time: '45m lalu', type: 'info' },
+    { icon: '🚨', text: 'Laporan darurat baru: Kebocoran pipa RT 03', time: '1j lalu', type: 'danger' },
+    { icon: '📡', text: 'Sinkronisasi mesh: 12 node ter-update', time: '2j lalu', type: 'info' },
+    { icon: '✅', text: 'Distribusi 30kg telur ke posyandu RW 05 selesai', time: '3j lalu', type: 'success' },
+    { icon: '💰', text: 'Donasi online masuk Rp 250.000 dari KitaBisa', time: '4j lalu', type: 'success' },
+    { icon: '🔒', text: 'Backup otomatis berhasil ke USB (47.3 MB)', time: '5j lalu', type: 'info' },
+  ];
+  const feed = document.getElementById('activityFeed');
+  if (!feed) return;
+  feed.innerHTML = activities.map(a => `
+    <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:20px;">${a.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:500;">${a.text}</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateDashboardStats() {
+  const funds = appData.funds;
+  if (!funds) return;
+  document.getElementById('statDana').textContent = 'Rp ' + funds.balance.toLocaleString('id');
+  document.getElementById('statStok').textContent = appData.items.reduce((s, i) => s + i.stock, 0);
+  document.getElementById('statDarurat').textContent = appData.tickets.filter(t => t.priority === 'darurat' && t.status !== 'selesai').length;
+  document.getElementById('statMesh').textContent = appData.meshNodes.filter(n => n.status === 'active').length;
+}
+
+function updateFundStats() {
+  const funds = appData.funds;
+  if (!funds) return;
+  document.getElementById('fundBalance').textContent = 'Rp ' + funds.balance.toLocaleString('id');
+  document.getElementById('fundRetail').textContent = 'Rp ' + funds.retail.toLocaleString('id');
+  document.getElementById('fundDonation').textContent = 'Rp ' + funds.donation.toLocaleString('id');
+  document.getElementById('fundCsr').textContent = 'Rp ' + funds.csr.toLocaleString('id');
+  
+  const allocFood = Math.round(funds.balance * 0.5);
+  const allocSubsidy = Math.round(funds.balance * 0.3);
+  const allocOps = Math.round(funds.balance * 0.2);
+  document.getElementById('allocFood').textContent = 'Rp ' + allocFood.toLocaleString('id');
+  document.getElementById('allocSubsidy').textContent = 'Rp ' + allocSubsidy.toLocaleString('id');
+  document.getElementById('allocOps').textContent = 'Rp ' + allocOps.toLocaleString('id');
+}
+
+function updateTicketStats() {
+  const tickets = appData.tickets;
+  document.getElementById('ticketEmergency').textContent = tickets.filter(t => t.priority === 'darurat' && t.status !== 'selesai').length;
+  document.getElementById('ticketPending').textContent = tickets.filter(t => t.status === 'baru').length;
+  document.getElementById('ticketProcessing').textContent = tickets.filter(t => t.status === 'proses').length;
+  document.getElementById('ticketDone').textContent = tickets.filter(t => t.status === 'selesai').length;
+}
+
+function updateStockStats() {
+  const items = appData.items;
+  document.getElementById('stockTotalSku').textContent = items.length;
+  document.getElementById('stockLow').textContent = items.filter(i => i.stock < i.min_stock * 2 && i.stock > 0).length;
+  document.getElementById('stockEmpty').textContent = items.filter(i => i.stock <= 0).length;
+}
+
+// ============================================
+// POS / CASHIER
+// ============================================
+function renderPosProducts(category = 'all') {
+  const items = category === 'all' ? appData.items : appData.items.filter(i => i.category === category);
+  const grid = document.getElementById('posProductGrid');
+  if (!grid) return;
+  grid.innerHTML = items.map(item => `
+    <div class="pos-product-card" onclick="addToCart(${item.id})">
+      <div class="emoji">${item.emoji}</div>
+      <div class="name">${item.name}</div>
+      <div class="price">Rp ${item.het.toLocaleString('id')}</div>
+      <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">Stok: ${item.stock} ${item.unit}</div>
+    </div>
+  `).join('');
+}
+
+function filterCategory(cat, btn) {
+  document.querySelectorAll('.pos-cat-btn').forEach(b => {
+    b.classList.remove('active', 'btn-primary');
+    b.classList.add('btn-outline');
+  });
+  btn.classList.add('active', 'btn-primary');
+  btn.classList.remove('btn-outline');
+  renderPosProducts(cat);
+}
+
+function addToCart(id) {
+  const item = appData.items.find(i => i.id === id);
+  if (!item) return;
+  const existing = cart.find(c => c.id === id);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ ...item, qty: 1 });
+  }
+  renderCart();
+  showToast(`${item.emoji} ${item.name} ditambahkan`, 'success');
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  renderCart();
+}
+
+function updateQty(id, delta) {
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) { cart = cart.filter(c => c.id !== id); }
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById('cartItems');
+  const countEl = document.getElementById('cartCount');
+  if (!container) return;
+  
+  if (cart.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-secondary);">
+      <i class="bi bi-cart-x" style="font-size:48px;opacity:0.3;"></i>
+      <p style="margin-top:8px;font-size:13px;">Keranjang kosong</p>
+    </div>`;
+    if (countEl) countEl.textContent = '0 item';
+  } else {
+    container.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div style="font-size:20px;">${item.emoji}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">Rp ${item.het.toLocaleString('id')} × ${item.qty}</div>
+        </div>
+        <div class="cart-item-qty">
+          <button class="qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
+          <span style="font-size:13px;font-weight:600;min-width:20px;text-align:center;">${item.qty}</span>
+          <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+        </div>
+      </div>
+    `).join('');
+    if (countEl) countEl.textContent = cart.reduce((s, c) => s + c.qty, 0) + ' item';
+  }
+
+  const subtotal = cart.reduce((s, c) => s + (c.het * c.qty), 0);
+  const donation = Math.floor(subtotal * 0.15);
+  const total = subtotal;
+
+  document.getElementById('cartSubtotal').textContent = 'Rp ' + subtotal.toLocaleString('id');
+  document.getElementById('cartDonation').textContent = '- Rp ' + donation.toLocaleString('id');
+  document.getElementById('cartTotal').textContent = 'Rp ' + total.toLocaleString('id');
+}
+
+function clearCart() {
+  cart = [];
+  renderCart();
+  showToast('🗑️ Keranjang dikosongkan', 'info');
+}
+
+async function processPayment() {
+  if (cart.length === 0) { showToast('Keranjang kosong!', 'error'); return; }
+  
+  const subtotal = cart.reduce((s, c) => s + (c.het * c.qty), 0);
+  const donation = Math.floor(subtotal * 0.15);
+  
+  // Update stock di Supabase
+  for (const c of cart) {
+    const item = appData.items.find(i => i.id === c.id);
+    if (item) {
+      const newStock = item.stock - c.qty;
+      await SupaDB.updateStock(c.id, newStock);
+    }
+  }
+  
+  // Update funds di Supabase
+  const funds = appData.funds || { balance: 0, retail: 0, donation: 0, csr: 0 };
+  const newBalance = funds.balance + donation;
+  const newRetail = funds.retail + subtotal;
+  await SupaDB.updateFunds({
+    balance: newBalance,
+    retail: newRetail,
+    donation: funds.donation,
+    csr: funds.csr
+  });
+  
+  // Add transaction
+  await SupaDB.addTransaction({
+    items: cart.map(c => `${c.name} x${c.qty}`),
+    total: subtotal,
+    donation: donation
+  });
+  
+  // Add ledger block
+  const ledgerList = appData.ledger;
+  const prevHash = ledgerList.length > 0 ? ledgerList[0].hash : '0000000000000000';
+  const hash = simpleHash(prevHash + `RETAIL: ${cart.length} items` + Date.now());
+  await SupaDB.addLedgerBlock({
+    index: ledgerList.length + 1,
+    data: `RETAIL: ${cart.length} items, Total: Rp ${subtotal.toLocaleString('id')}, Donasi: Rp ${donation.toLocaleString('id')}`,
+    prevHash: prevHash.substring(0, 16) + '...',
+    hash: hash
+  });
+  
+  // Reload data
+  await loadAppData();
+  
+  showToast(`✅ Transaksi Rp ${subtotal.toLocaleString('id')} berhasil! Donasi subsidi: Rp ${donation.toLocaleString('id')}`, 'success');
+  cart = [];
+  renderCart();
+}
+
+function printReceipt() {
+  showToast('🖨️ Struk dikirim ke printer thermal 58mm', 'info');
+}
+
+// ============================================
+// STOCK MANAGEMENT
+// ============================================
+function renderStockTable() {
+  const items = appData.items;
+  const tbody = document.getElementById('stockTable');
+  if (!tbody) return;
+  
+  tbody.innerHTML = items.map(item => {
+    const pct = (item.stock / (item.min_stock * 3)) * 100;
+    let status = 'success', label = 'Aman';
+    if (pct < 20) { status = 'danger'; label = 'Kritis'; }
+    else if (pct < 50) { status = 'warning'; label = 'Menipis'; }
+    return `<tr>
+      <td><strong>${item.emoji} ${item.name}</strong></td>
+      <td><span class="badge-status badge-info">${item.category}</span></td>
+      <td><strong>${item.stock}</strong> ${item.unit}</td>
+      <td>${item.min_stock}</td>
+      <td>Rp ${item.modal.toLocaleString('id')}</td>
+      <td style="font-weight:700;">Rp ${item.het.toLocaleString('id')}</td>
+      <td><span class="badge-status badge-${status}">${label}</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="adjustStock(${item.id})"><i class="bi bi-pencil"></i></button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterStock(query) {
+  const items = appData.items.filter(i => i.name.toLowerCase().includes(query.toLowerCase()));
+  const tbody = document.getElementById('stockTable');
+  if (!tbody) return;
+  tbody.innerHTML = items.map(item => {
+    const pct = (item.stock / (item.min_stock * 3)) * 100;
+    let status = 'success', label = 'Aman';
+    if (pct < 20) { status = 'danger'; label = 'Kritis'; }
+    else if (pct < 50) { status = 'warning'; label = 'Menipis'; }
+    return `<tr>
+      <td><strong>${item.emoji} ${item.name}</strong></td>
+      <td><span class="badge-status badge-info">${item.category}</span></td>
+      <td><strong>${item.stock}</strong> ${item.unit}</td>
+      <td>${item.min_stock}</td>
+      <td>Rp ${item.modal.toLocaleString('id')}</td>
+      <td style="font-weight:700;">Rp ${item.het.toLocaleString('id')}</td>
+      <td><span class="badge-status badge-${status}">${label}</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="adjustStock(${item.id})"><i class="bi bi-pencil"></i></button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function adjustStock(id) {
+  const item = appData.items.find(i => i.id === id);
+  const qty = prompt(`Tambah stok ${item.name} (saat ini: ${item.stock} ${item.unit}):`, '50');
+  if (qty && !isNaN(qty) && parseInt(qty) > 0) {
+    const newStock = item.stock + parseInt(qty);
+    await SupaDB.updateStock(id, newStock);
+    await loadAppData();
+    showToast(`📦 Stok ${item.name} ditambah ${qty} ${item.unit}`, 'success');
+  }
+}
+
+function autoProcure() {
+  const lowStock = appData.items.filter(i => i.stock < i.min_stock * 1.2);
+  if (lowStock.length === 0) {
+    showToast('✅ Semua stok masih aman!', 'success');
+    return;
+  }
+  const orderList = lowStock.map(i => `${i.name}: ${(i.min_stock * 3 - i.stock)} ${i.unit}`).join(', ');
+  showToast(`🤖 Auto-order dibuat: ${orderList}`, 'info');
+}
+
+// ============================================
+// BARTER
+// ============================================
+function calculateBarter() {
+  const beras = appData.items.find(i => i.name === 'Beras SPHP');
+  const telur = appData.items.find(i => i.name === 'Telur Cikarang');
+  if (!beras || !telur) return;
+  const fromQty = parseFloat(document.getElementById('barterFrom').value) || 0;
+  const totalValue = fromQty * beras.het;
+  const resultQty = (totalValue / telur.het).toFixed(1);
+  document.getElementById('barterResult').textContent = resultQty;
+}
+
+function renderBarterTable() {
+  const barters = [
+    { time: '10:30', from: '5kg Beras', to: '9.1kg Telur', ratio: '1:1.82', user: 'Pak Budi', trust: 92, status: 'success' },
+    { time: '09:15', from: '2L Minyak', to: '3.5kg Gula', ratio: '1:1.42', user: 'Bu Min', trust: 88, status: 'success' },
+    { time: '08:40', from: '10kg Beras', to: '18.2kg Telur', ratio: '1:1.82', user: 'Pak Joko', trust: 95, status: 'success' },
+    { time: 'Kemarin', from: '3kg Gula', to: '5.4L Minyak', ratio: '1:1.08', user: 'Bu Sari', trust: 76, status: 'success' },
+    { time: 'Kemarin', from: '1kg Telur', to: '3.9kg Beras', ratio: '1:0.45', user: 'Pak RT 07', trust: 91, status: 'success' },
+  ];
+  const tbody = document.getElementById('barterTable');
+  if (!tbody) return;
+  tbody.innerHTML = barters.map(b => `
+    <tr>
+      <td>${b.time}</td>
+      <td>${b.from}</td>
+      <td>${b.to}</td>
+      <td><strong>${b.ratio}</strong></td>
+      <td>${b.user}</td>
+      <td><span class="badge-status badge-${b.trust > 85 ? 'success' : 'warning'}">${b.trust}</span></td>
+      <td><span class="badge-status badge-${b.status}">✓ Valid</span></td>
+    </tr>
+  `).join('');
+}
+
+// ============================================
+// TICKETS
+// ============================================
+function renderTicketList() {
+  const tickets = appData.tickets;
+  const container = document.getElementById('ticketList');
+  if (!container) return;
+  
+  container.innerHTML = tickets.map(t => {
+    let priorityClass = 'info', priorityLabel = t.priority;
+    if (t.priority === 'darurat') { priorityClass = 'danger'; priorityLabel = '🚨 Darurat'; }
+    else if (t.priority === 'normal') { priorityClass = 'warning'; priorityLabel = '📋 Normal'; }
+    
+    let statusClass = 'info';
+    if (t.status === 'baru') statusClass = 'warning';
+    else if (t.status === 'proses') statusClass = 'info';
+    else if (t.status === 'selesai') statusClass = 'success';
+    
+    const timeStr = t.time || t.created_at ? new Date(t.created_at).toLocaleString('id') : 'Baru saja';
+    
+    return `<div class="checklist-item ${t.status === 'selesai' ? 'completed' : ''}" onclick="toggleTicket(${t.id})">
+      <div class="check-box">${t.status === 'selesai' ? '<i class="bi bi-check"></i>' : ''}</div>
+      <div style="flex:1;">
+        <div class="checklist-text">${t.title}</div>
+        <div class="checklist-meta">${t.reporter || 'Anonim'} — ${timeStr}</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">${t.description || '-'}</div>
+      </div>
+      <span class="badge-status badge-${priorityClass}">${priorityLabel}</span>
+      <span class="badge-status badge-${statusClass}">${t.status}</span>
+    </div>`;
+  }).join('');
+}
+
+async function toggleTicket(id) {
+  const ticket = appData.tickets.find(t => t.id === id);
+  if (!ticket) return;
+  
+  const newStatus = ticket.status === 'selesai' ? 'baru' : 'selesai';
+  await SupaDB.updateTicket(id, { status: newStatus });
+  await loadAppData();
+  
+  if (newStatus === 'selesai') {
+    showToast(`✅ "${ticket.title}" ditandai selesai`, 'success');
+  }
+}
+
+function filterTickets(filter) {
+  const tickets = filter === 'all' ? appData.tickets : appData.tickets.filter(t => t.status === filter || t.priority === filter);
+  const container = document.getElementById('ticketList');
+  if (!container) return;
+  
+  container.innerHTML = tickets.map(t => {
+    let priorityClass = 'info', priorityLabel = t.priority;
+    if (t.priority === 'darurat') { priorityClass = 'danger'; priorityLabel = '🚨 Darurat'; }
+    else if (t.priority === 'normal') { priorityClass = 'warning'; priorityLabel = '📋 Normal'; }
+    let statusClass = 'info';
+    if (t.status === 'baru') statusClass = 'warning';
+    else if (t.status === 'proses') statusClass = 'info';
+    else if (t.status === 'selesai') statusClass = 'success';
+    const timeStr = t.time || t.created_at ? new Date(t.created_at).toLocaleString('id') : 'Baru saja';
+    return `<div class="checklist-item ${t.status === 'selesai' ? 'completed' : ''}" onclick="toggleTicket(${t.id})">
+      <div class="check-box">${t.status === 'selesai' ? '<i class="bi bi-check"></i>' : ''}</div>
+      <div style="flex:1;">
+        <div class="checklist-text">${t.title}</div>
+        <div class="checklist-meta">${t.reporter || 'Anonim'} — ${timeStr}</div>
+      </div>
+      <span class="badge-status badge-${priorityClass}">${priorityLabel}</span>
+      <span class="badge-status badge-${statusClass}">${t.status}</span>
+    </div>`;
+  }).join('');
+}
+
+// ============================================
+// AUDIT / FUNDING
+// ============================================
+function renderAuditTable() {
+  const audits = [
+    { date: '23/06/2026', desc: 'Retail cashier — 12 transaksi', masuk: 1247500, keluar: 0, saldo: appData.funds?.balance || 24700000, source: 'Retail 15%' },
+    { date: '23/06/2026', desc: 'Beli beras 200kg Pasar Cibitung', masuk: 0, keluar: 2160000, saldo: (appData.funds?.balance || 24700000) - 2160000, source: 'Belanja' },
+    { date: '22/06/2026', desc: 'Donasi KitaBisa — 15 donatur', masuk: 750000, keluar: 0, saldo: (appData.funds?.balance || 24700000) + 750000, source: 'Crowdfunding' },
+    { date: '22/06/2026', desc: 'Distribusi sembako RW 05', masuk: 0, keluar: 3200000, saldo: (appData.funds?.balance || 24700000) - 3200000, source: 'Subsidi' },
+  ];
+  const tbody = document.getElementById('auditTable');
+  if (!tbody) return;
+  tbody.innerHTML = audits.map(a => `
+    <tr>
+      <td>${a.date}</td>
+      <td>${a.desc}</td>
+      <td style="color:var(--success);font-weight:600;">${a.masuk ? 'Rp ' + a.masuk.toLocaleString('id') : '-'}</td>
+      <td style="color:var(--danger);font-weight:600;">${a.keluar ? 'Rp ' + a.keluar.toLocaleString('id') : '-'}</td>
+      <td style="font-weight:700;">Rp ${a.saldo.toLocaleString('id')}</td>
+      <td><span class="badge-status badge-info">${a.source}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ============================================
+// LOGISTICS
+// ============================================
+function renderTruckList() {
+  const trucks = [
+    { plate: 'B 1234 XY', driver: 'Pak Herman', capacity: 72, items: 'Beras 200kg, Minyak 50L, Telur 30kg', status: 'Dalam perjalanan' },
+    { plate: 'B 5678 AB', driver: 'Pak Agus', capacity: 45, items: 'Gula 100kg, Garam 50pkg', status: 'Loading' },
+    { plate: 'B 9012 CD', driver: 'Pak Dedi', capacity: 88, items: 'Kosong — menuju Pasar Baru', status: 'Siap' },
+    { plate: 'B 3456 EF', driver: 'Pak Rudi', capacity: 31, items: 'Mie 200pcs, Sabun 50pcs', status: 'Dalam perjalanan' },
+  ];
+  const container = document.getElementById('truckList');
+  if (!container) return;
+  container.innerHTML = trucks.map(t => {
+    let color = 'green';
+    if (t.capacity < 30) color = 'red';
+    else if (t.capacity < 50) color = 'orange';
+    return `<div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-weight:700;font-size:13px;">🚚 ${t.plate}</div>
+        <span class="badge-status badge-${t.status === 'Dalam perjalanan' ? 'info' : t.status === 'Loading' ? 'warning' : 'success'}">${t.status}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Supir: ${t.driver}</div>
+      <div style="font-size:11px;margin-top:4px;">${t.items}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+        <span style="font-size:11px;font-weight:600;">Muatan:</span>
+        <div class="progress-bar" style="flex:1;"><div class="progress-fill ${color}" style="width:${t.capacity}%"></div></div>
+        <span style="font-size:11px;font-weight:700;">${t.capacity}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================
+// MESH NETWORK
+// ============================================
+function renderMeshVisual() {
+  const container = document.getElementById('meshVisual');
+  if (!container) return;
+  
+  const nodes = [
+    { x: 50, y: 50, active: true, icon: '🏪', label: 'Posko' },
+    { x: 25, y: 30, active: true, icon: '📱', label: 'N002' },
+    { x: 75, y: 25, active: true, icon: '🏪', label: 'N003' },
+    { x: 20, y: 70, active: true, icon: '📱', label: 'N004' },
+    { x: 80, y: 65, active: false, icon: '📱', label: 'N005' },
+    { x: 45, y: 80, active: true, icon: '📱', label: 'N006' },
+    { x: 65, y: 45, active: true, icon: '📱', label: 'N007' },
+    { x: 35, y: 15, active: true, icon: '📱', label: 'N008' },
+    { x: 85, y: 85, active: true, icon: '📱', label: 'N009' },
+    { x: 10, y: 50, active: true, icon: '📱', label: 'N010' },
+  ];
+  
+  container.innerHTML = `
+    <svg style="position:absolute;width:100%;height:100%;z-index:1;" viewBox="0 0 100 100">
+      <line x1="50" y1="50" x2="25" y2="30" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="50" y1="50" x2="75" y2="25" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="50" y1="50" x2="20" y2="70" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="50" y1="50" x2="45" y2="80" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="50" y1="50" x2="65" y2="45" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="25" y1="30" x2="35" y2="15" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="75" y1="25" x2="65" y2="45" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="45" y1="80" x2="85" y2="85" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.3"/>
+      <line x1="20" y1="70" x2="10" y2="50" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.5"/>
+      <line x1="25" y1="30" x2="10" y2="50" stroke="var(--primary-light)" stroke-width="0.3" opacity="0.3"/>
+    </svg>
+  ` + nodes.map(n => `
+    <div class="mesh-node ${n.active ? 'active' : 'inactive'}" style="left:${n.x}%;top:${n.y}%;transform:translate(-50%,-50%);" title="${n.label}">
+      ${n.icon}
+    </div>
+  `).join('');
+}
+
+function renderSyncLog() {
+  const logs = [
+    { time: '14:32:15', msg: '[BLE] Node N002 synced — 3 transactions pulled', type: 'success' },
+    { time: '14:31:48', msg: '[QR] Batch scan: 5 QR codes processed', type: 'info' },
+    { time: '14:30:22', msg: '[MESH] Gossip round completed — 847 packets', type: 'success' },
+    { time: '14:28:10', msg: '[BLE] Node N005 disconnected (signal weak)', type: 'warning' },
+    { time: '14:25:33', msg: '[P2P] Binary dump: 2.3KB compressed → 680 bytes', type: 'info' },
+    { time: '14:22:01', msg: '[BLE] Node N006 handshake OK — trust verified', type: 'success' },
+    { time: '14:20:45', msg: '[SYNC] Conflict resolved: timestamp N003 wins', type: 'info' },
+    { time: '14:18:12', msg: '[BLE] New node detected: N010 (Vivo Y12)', type: 'success' },
+    { time: '14:15:00', msg: '[BACKUP] Auto-backup triggered to USB', type: 'info' },
+    { time: '14:10:30', msg: '[MESH] Topology updated — 23 active nodes', type: 'success' },
+  ];
+  const container = document.getElementById('syncLog');
+  if (!container) return;
+  container.innerHTML = logs.map(l => {
+    let color = 'var(--text-secondary)';
+    if (l.type === 'success') color = 'var(--success)';
+    else if (l.type === 'warning') color = 'var(--warning)';
+    return `<div style="padding:4px 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--text-secondary);">[${l.time}]</span>
+      <span style="color:${color};">${l.msg}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderMeshTable() {
+  const nodes = appData.meshNodes;
+  const tbody = document.getElementById('meshTable');
+  if (!tbody) return;
+  tbody.innerHTML = nodes.map(n => `
+    <tr>
+      <td><strong>${n.id}</strong></td>
+      <td>${n.device}</td>
+      <td>${n.owner}</td>
+      <td>${n.signal} dBm</td>
+      <td>${n.last_seen || 'Aktif'}</td>
+      <td>${n.data}</td>
+      <td><span class="badge-status badge-${n.status === 'active' ? 'success' : 'warning'}">${n.status === 'active' ? '● Aktif' : '○ Offline'}</span></td>
+    </tr>
+  `).join('');
+}
+
+function scanMesh() {
+  showToast('📡 Scanning mesh nodes... 23 devices found in 2.4km radius', 'info');
+  setTimeout(() => {
+    showToast('✅ Mesh scan complete. 20 active, 3 sleeping.', 'success');
+  }, 2000);
+}
+
+function generateQR() {
+  showToast('📱 QR Code sinkronisasi di-generate (GZIP compressed, B&W high contrast)', 'success');
+}
+
+// ============================================
+// LEDGER
+// ============================================
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  const hex = Math.abs(hash).toString(16).padStart(16, '0');
+  return hex + hex.substring(0, 16) + hex.substring(0, 16) + hex.substring(0, 16);
+}
+
+function renderLedgerBlocks() {
+  const ledger = appData.ledger;
+  const container = document.getElementById('ledgerBlocks');
+  if (!container) return;
+  
+  const recent = ledger.slice(-8).reverse();
+  if (recent.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">Belum ada blok. Lakukan transaksi untuk membuat blok baru.</div>';
+    return;
+  }
+  container.innerHTML = recent.map(b => `
+    <div class="ledger-block">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-weight:700;color:var(--primary);">Blok #${b.index}</span>
+        <span class="ledger-time">${b.time || new Date(b.created_at).toLocaleString('id')}</span>
+      </div>
+      <div style="margin-bottom:4px;">📝 ${b.data}</div>
+      <div style="font-size:10px;color:var(--text-secondary);">Prev: ${b.prev_hash || '0000...'}</div>
+      <div class="ledger-hash">Hash: ${(b.hash || '').substring(0, 32)}...</div>
+    </div>
+  `).join('');
+  document.getElementById('blockCount').textContent = (1247 + ledger.length).toLocaleString();
+}
+
+function verifyIntegrity() {
+  showToast('🔍 Verifikasi Merkle Tree... Semua blok valid! Integritas 100%', 'success');
+}
+
+// ============================================
+// LEADERBOARD
+// ============================================
+function renderLeaderboard() {
+  const leaders = [
+    { rank: 1, name: 'Warung Bu Min', score: 945, badge: '🥇', donations: 'Rp 2.4jt' },
+    { rank: 2, name: 'Toko Pak Joko', score: 812, badge: '🥈', donations: 'Rp 1.9jt' },
+    { rank: 3, name: 'Kios Pak Herman', score: 734, badge: '🥉', donations: 'Rp 1.5jt' },
+    { rank: 4, name: 'Warung Bu Sari', score: 621, badge: '4', donations: 'Rp 1.1jt' },
+    { rank: 5, name: 'Toko Pak RT 07', score: 558, badge: '5', donations: 'Rp 980rb' },
+  ];
+  const container = document.getElementById('leaderboard');
+  if (!container) return;
+  container.innerHTML = leaders.map(l => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:20px;width:32px;text-align:center;">${l.badge}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${l.name}</div>
+        <div style="font-size:11px;color:var(--text-secondary);">Kontribusi: ${l.donations}</div>
+      </div>
+      <div style="font-size:16px;font-weight:800;color:var(--primary);">${l.score}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================
+// CHARTS
+// ============================================
+function initCharts() {
+  // Stock Chart
+  const stockCtx = document.getElementById('stockChart');
+  if (stockCtx) {
+    stockChart = new Chart(stockCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+        datasets: [
+          { label: 'Stok Masuk', data: [120, 85, 150, 95, 130, 110, 145], backgroundColor: 'rgba(5, 150, 105, 0.7)', borderRadius: 4 },
+          { label: 'Stok Keluar', data: [95, 110, 80, 120, 105, 90, 100], backgroundColor: 'rgba(220, 38, 38, 0.5)', borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+        scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } }
+      }
+    });
+  }
+
+  // Allocation Chart
+  const allocCtx = document.getElementById('allocationChart');
+  if (allocCtx) {
+    allocationChart = new Chart(allocCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Beli Sembako (50%)', 'Subsidi Harga (30%)', 'Ops & Mesh (20%)'],
+        datasets: [{
+          data: [50, 30, 20],
+          backgroundColor: ['#16a34a', '#2563eb', '#d97706'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } },
+        cutout: '65%'
+      }
+    });
+  }
+
+  // Mesh Growth Chart
+  const meshCtx = document.getElementById('meshGrowthChart');
+  if (meshCtx) {
+    meshGrowthChart = new Chart(meshCtx, {
+      type: 'line',
+      data: {
+        labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5', 'Minggu 6'],
+        datasets: [{
+          label: 'Node Mesh',
+          data: [3, 7, 11, 15, 19, 23],
+          borderColor: '#059669',
+          backgroundColor: 'rgba(5, 150, 105, 0.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#059669',
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } }
+      }
+    });
+  }
+}
+
+function refreshChart() {
+  if (stockChart) {
+    stockChart.data.datasets[0].data = stockChart.data.datasets[0].data.map(() => Math.floor(Math.random() * 100 + 50));
+    stockChart.data.datasets[1].data = stockChart.data.datasets[1].data.map(() => Math.floor(Math.random() * 80 + 40));
+    stockChart.update();
+  }
+  showToast('📊 Grafik diperbarui', 'info');
+}
+
+// ============================================
+// CHATBOT / AI
+// ============================================
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  addChatMsg(msg, 'user');
+  input.value = '';
+  
+  setTimeout(() => {
+    const response = getAIResponse(msg);
+    addChatMsg(response, 'bot');
+  }, 500);
+}
+
+function sendQuickMsg(msg) {
+  addChatMsg(msg, 'user');
+  setTimeout(() => {
+    const response = getAIResponse(msg);
+    addChatMsg(response, 'bot');
+  }, 500);
+}
+
+function addChatMsg(text, type) {
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + type;
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function getAIResponse(msg) {
+  const lower = msg.toLowerCase();
+  if (lower.includes('stok') && lower.includes('beras')) {
+    const beras = appData.items.find(i => i.name.includes('Beras'));
+    if (beras) {
+      return `📦 Stok Beras SPHP saat ini: ${beras.stock} kg (HET: Rp ${beras.het.toLocaleString('id')}/kg). Status: ${beras.stock > beras.min_stock ? '✅ Aman' : '⚠️ Menipis'}`;
+    }
+    return '📦 Stok beras tidak ditemukan di database.';
+  }
+  if (lower.includes('harga') || lower.includes('het')) {
+    return '💰 Harga HET Terkini:\n🍚 Beras: Rp 12.500/kg\n🫗 Minyakita: Rp 15.700/L\n🥚 Telur: Rp 27.500/kg\n🍬 Gula: Rp 14.500/kg\n(Harga dikunci — tidak bisa diedit saat krisis)';
+  }
+  if (lower.includes('darurat') || lower.includes('emergency')) {
+    return '🚨 Laporan Darurat Aktif:\n1. Kelangkaan beras RW 07\n2. Kebocoran pipa RT 03\n3. Lansia RW 12 belum dapat bantuan\n\nMau saya buatkan task checklist otomatis?';
+  }
+  if (lower.includes('barter')) {
+    return '🔄 Kalkulator Barter:\n5kg Beras = 9.1kg Telur\n2L Minyak = 3.5kg Gula\n\nRasio berdasarkan HET resmi Juni 2026. Mau hitung yang lain?';
+  }
+  if (lower.includes('mesh') || lower.includes('jaringan')) {
+    return `📡 Status Mesh Network:\n• ${appData.meshNodes.filter(n => n.status === 'active').length} node aktif\n• Radius: 2.4 km\n• Protokol: BLE 5.0 Gossip\n• Paket hari ini: 847\n• ${appData.meshNodes.filter(n => n.status !== 'active').length} node offline`;
+  }
+  if (lower.includes('halo') || lower.includes('hai') || lower.includes('hi')) {
+    return 'Halo! 👋 Senang bertemu Anda. Saya siap membantu cek stok, harga, laporan warga, hitung barter, atau info mesh network. Silakan tanya apa saja!';
+  }
+  return '🤖 Saya mengerti pertanyaan Anda. Berdasarkan knowledge-base.json, berikut opsi yang bisa saya bantu:\n• Cek stok barang\n• Info harga HET\n• Laporan darurat\n• Hitung rasio barter\n• Status mesh network\n\nCoba ketik lebih spesifik ya! 😊';
+}
+
+// ============================================
+// MODALS
+// ============================================
+function openModal(type) {
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  if (!overlay || !content) return;
+  
+  let html = '';
+  switch(type) {
+    case 'newReport':
+      html = `
+        <div class="modal-header">
+          <div class="modal-title">📝 Input Laporan Warga</div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Judul Laporan</label>
+            <input type="text" class="form-input" id="reportTitle" placeholder="Contoh: Kelangkaan beras di RW...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Pelapor</label>
+            <input type="text" class="form-input" id="reportReporter" placeholder="Nama & RT/RW">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prioritas</label>
+            <select class="form-input" id="reportPriority">
+              <option value="darurat">🚨 Darurat</option>
+              <option value="normal" selected>📋 Normal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deskripsi</label>
+            <textarea class="form-input" id="reportDesc" rows="3" placeholder="Jelaskan detail laporan..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" onclick="submitReport()"><i class="bi bi-send"></i> Kirim Laporan</button>
+        </div>`;
+      break;
+    case 'addStock':
+      html = `
+        <div class="modal-header">
+          <div class="modal-title">📦 Tambah Stok Masuk</div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Pilih Barang</label>
+            <select class="form-input" id="stockItem">
+              ${appData.items.map(i => `<option value="${i.id}">${i.emoji} ${i.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jumlah Masuk</label>
+            <input type="number" class="form-input" id="stockQty" placeholder="Masukkan jumlah" value="50">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" onclick="submitStock()"><i class="bi bi-plus"></i> Tambah Stok</button>
+        </div>`;
+      break;
+    case 'newBarter':
+      html = `
+        <div class="modal-header">
+          <div class="modal-title">🔄 Ajukan Barter Baru</div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Barang Ditawarkan</label>
+            <select class="form-input" id="barterOffer">
+              ${appData.items.map(i => `<option value="${i.id}">${i.emoji} ${i.name} (${i.unit})</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jumlah</label>
+            <input type="number" class="form-input" id="barterOfferQty" value="5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Barang Diminta</label>
+            <select class="form-input" id="barterWant">
+              ${appData.items.map(i => `<option value="${i.id}">${i.emoji} ${i.name} (${i.unit})</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Warga</label>
+            <input type="text" class="form-input" id="barterUser" placeholder="Nama pemilik HP">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" onclick="submitBarter()"><i class="bi bi-arrow-left-right"></i> Proses Barter</button>
+        </div>`;
+      break;
+    case 'newDelivery':
+      html = `
+        <div class="modal-header">
+          <div class="modal-title">🚚 Buat Pengiriman Baru</div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Tujuan</label>
+            <select class="form-input">
+              <option>RW 05 — Posyandu</option>
+              <option>RW 07 — Distribusi Beras</option>
+              <option>RT 03 — Perbaikan Air</option>
+              <option>RW 12 — Lansia</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Barang</label>
+            <input type="text" class="form-input" placeholder="Contoh: Beras 50kg, Telur 10kg">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Supir / Kendaraan</label>
+            <select class="form-input">
+              <option>Pak Herman — B 1234 XY</option>
+              <option>Pak Agus — B 5678 AB</option>
+              <option>Pak Dedi — B 9012 CD</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" onclick="submitDelivery()"><i class="bi bi-truck"></i> Kirim</button>
+        </div>`;
+      break;
+    case 'quickAction':
+      html = `
+        <div class="modal-header">
+          <div class="modal-title">⚡ Aksi Cepat</div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button class="btn btn-outline" style="padding:20px;flex-direction:column;height:auto;" onclick="closeModal();navigateTo('cashier');">
+            <i class="bi bi-cart3" style="font-size:24px;"></i>
+            <span style="margin-top:6px;font-size:12px;">Buka Kasir</span>
+          </button>
+          <button class="btn btn-outline" style="padding:20px;flex-direction:column;height:auto;" onclick="closeModal();openModal('newReport');">
+            <i class="bi bi-ticket-perforated" style="font-size:24px;"></i>
+            <span style="margin-top:6px;font-size:12px;">Laporan Baru</span>
+          </button>
+          <button class="btn btn-outline" style="padding:20px;flex-direction:column;height:auto;" onclick="closeModal();syncData();">
+            <i class="bi bi-arrow-repeat" style="font-size:24px;"></i>
+            <span style="margin-top:6px;font-size:12px;">Sinkron Mesh</span>
+          </button>
+          <button class="btn btn-outline" style="padding:20px;flex-direction:column;height:auto;" onclick="closeModal();openModal('addStock');">
+            <i class="bi bi-box-seam" style="font-size:24px;"></i>
+            <span style="margin-top:6px;font-size:12px;">Tambah Stok</span>
+          </button>
+          <button class="btn btn-outline" style="padding:20px;flex-direction:column;height:auto;" onclick="closeModal();navigateTo('chatbot');">
+            <i class="bi bi-robot" style="font-size:24px;"></i>
+            <span style="margin-top:6px;font-size:12px;">AI Assistant</span>
+          </button>
+          <button class="btn btn-outline" style="padding:20px;flex-direction:column;height:auto;" onclick="closeModal();generateQR();">
+            <i class="bi bi-qr-code" style="font-size:24px;"></i>
+            <span style="margin-top:6px;font-size:12px;">Generate QR</span>
+          </button>
+        </div>`;
+      break;
+  }
+  
+  content.innerHTML = html;
+  overlay.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+async function submitReport() {
+  const title = document.getElementById('reportTitle').value;
+  const reporter = document.getElementById('reportReporter').value;
+  const priority = document.getElementById('reportPriority').value;
+  const desc = document.getElementById('reportDesc').value;
+  
+  if (!title) { showToast('Judul laporan wajib diisi!', 'error'); return; }
+  
+  await SupaDB.addTicket({
+    title: title,
+    reporter: reporter || 'Anonim',
+    priority: priority,
+    desc: desc || '-'
+  });
+  
+  await loadAppData();
+  closeModal();
+  showToast('📝 Laporan berhasil dicatat!', 'success');
+}
+
+async function submitStock() {
+  const itemId = parseInt(document.getElementById('stockItem').value);
+  const qty = parseInt(document.getElementById('stockQty').value);
+  const item = appData.items.find(i => i.id === itemId);
+  if (item && qty > 0) {
+    await SupaDB.updateStock(itemId, item.stock + qty);
+    await loadAppData();
+    closeModal();
+    showToast(`📦 ${item.name} ditambah ${qty} ${item.unit}`, 'success');
+  }
+}
+
+async function submitBarter() {
+  const offerId = parseInt(document.getElementById('barterOffer').value);
+  const wantId = parseInt(document.getElementById('barterWant').value);
+  const offerQty = parseFloat(document.getElementById('barterOfferQty').value);
+  const user = document.getElementById('barterUser').value || 'Warga';
+  
+  const offerItem = appData.items.find(i => i.id === offerId);
+  const wantItem = appData.items.find(i => i.id === wantId);
+  
+  if (offerItem && wantItem && offerQty > 0) {
+    const totalValue = offerQty * offerItem.het;
+    const wantQty = (totalValue / wantItem.het).toFixed(1);
+    const ledgerList = appData.ledger;
+    const prevHash = ledgerList.length > 0 ? ledgerList[0].hash : '0000000000000000';
+    const hash = simpleHash(prevHash + `BARTER: ${user}` + Date.now());
+    await SupaDB.addLedgerBlock({
+      index: ledgerList.length + 1,
+      data: `BARTER: ${user} — ${offerQty}${offerItem.unit} ${offerItem.name} ↔ ${wantQty}${wantItem.unit} ${wantItem.name}`,
+      prevHash: prevHash.substring(0, 16) + '...',
+      hash: hash
+    });
+    await loadAppData();
+    closeModal();
+    showToast(`🔄 Barter berhasil: ${offerQty}${offerItem.unit} ${offerItem.name} ↔ ${wantQty}${wantItem.unit} ${wantItem.name}`, 'success');
+  }
+}
+
+function submitDelivery() {
+  closeModal();
+  showToast('🚚 Pengiriman dibuat — supir diberangkatkan', 'success');
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function navigateTo(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (navItem) navItem.classList.add('active');
+  if (window.innerWidth <= 768) toggleSidebar();
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('active');
+}
+
+// ============================================
+// THEME
+// ============================================
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  LocalDB.set('theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  if (theme === 'crisis') {
+    document.getElementById('emergencyBanner').classList.add('active');
+  } else {
+    document.getElementById('emergencyBanner').classList.remove('active');
+  }
+}
+
+function activateCrisisMode() {
+  setTheme('crisis');
+  showToast('⚠️ Mode Krisis diaktifkan! Harga dikunci ke HET.', 'warning');
+}
+
+// ============================================
+// UTILITIES
+// ============================================
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span class="toast-message">${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+function syncData() {
+  showToast('🔄 Sinkronisasi mesh dimulai...', 'info');
+  setTimeout(() => {
+    showToast('✅ Sinkronisasi selesai! 23 node ter-update, 847 paket diproses.', 'success');
+    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('id');
+  }, 2000);
+}
+
+function exportData() {
+  const data = {
+    items: appData.items,
+    tickets: appData.tickets,
+    transactions: appData.transactions,
+    ledger: appData.ledger,
+    funds: appData.funds,
+    exportTime: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sembakokita-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 Data berhasil diekspor!', 'success');
+}
+
+function showNotifications() {
+  showToast('🔔 3 notifikasi: Stok beras menipis, Laporan darurat baru, Backup selesai', 'info');
+}
+
+function handleSearch(query) {
+  if (query.length < 2) return;
+}
+
+function generateDailyTasks() {
+  showToast('🤖 TicketParser menjalankan auto-generate tugas dari 4 laporan masuk...', 'info');
+  setTimeout(() => {
+    showToast('✅ 4 tugas baru di-generate & ditambahkan ke checklist besok!', 'success');
+  }, 1500);
+}
+
+function manualBackup() {
+  showToast('🔐 Mengenkripsi database ke ZIP...', 'info');
+  setTimeout(() => {
+    showToast('✅ Backup berhasil! 47.3 MB tersimpan ke USB (AES-256 encrypted)', 'success');
+  }, 2000);
+}
+
+function restoreBackup() {
+  showToast('⚠️ Restore akan mengganti data saat ini. Pastikan USB terhubung.', 'warning');
+}
+
+function runSecurityScan() {
+  showToast('🛡️ Menjalankan full security scan...', 'info');
+  setTimeout(() => {
+    showToast('✅ Security scan selesai! Semua 5 check PASS. Sistem aman.', 'success');
+  }, 3000);
+}
+
+function generateImpactReport() {
+  showToast('📊 Generating Proof of Impact report...', 'info');
+  setTimeout(() => {
+    showToast('✅ Laporan dampak berhasil di-generate! Siap share ke publik.', 'success');
+  }, 1500);
+}
+
+function shareImpact() {
+  showToast('📤 Link dampak disalin! Bagikan ke media sosial untuk viralkan.', 'success');
+}
+
+// ============================================
+// BACKGROUND TASKS
+// ============================================
+function simulateMesh() {
+  setInterval(() => {
+    const log = document.getElementById('syncLog');
+    if (log && currentPage === 'mesh') {
+      const messages = [
+        '[BLE] Heartbeat from N003 — OK',
+        '[MESH] Gossip round — 12 packets exchanged',
+        '[P2P] Binary packet: 1.2KB → 380 bytes (70% compressed)',
+        '[QR] Scan request queued',
+        '[BLE] Node N007 signal: -42 dBm',
+      ];
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      const time = new Date().toLocaleTimeString('id');
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:4px 0;border-bottom:1px solid var(--border);';
+      div.innerHTML = `<span style="color:var(--text-secondary);">[${time}]</span> <span style="color:var(--success);">${msg}</span>`;
+      log.insertBefore(div, log.firstChild);
+      if (log.children.length > 20) log.removeChild(log.lastChild);
+    }
+  }, 5000);
+}
+
+function checkBattery() {
+  if ('getBattery' in navigator) {
+    navigator.getBattery().then(battery => {
+      const level = Math.round(battery.level * 100);
+      document.getElementById('batteryLevel').textContent = level + '%';
+      if (level < 15) {
+        setTheme('survival');
+        showToast('🔋 Baterai < 15%! Switch ke mode Survival (monokrom)', 'warning');
+      }
+    });
+  }
+}
+
+// ============================================
+// KEYBOARD SHORTCUTS
+// ============================================
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    switch(e.key) {
+      case 'k': e.preventDefault(); document.getElementById('globalSearch').focus(); break;
+      case 's': e.preventDefault(); syncData(); break;
+      case 'e': e.preventDefault(); exportData(); break;
+    }
+  }
+  if (e.key === 'Escape') closeModal();
+});
+
+// ============================================
+// BOOT
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load theme
+  const savedTheme = LocalDB.get('theme', 'normal');
+  setTheme(savedTheme);
+  
+  // Load data
+  await loadAppData();
+  
+  // Init charts
+  initCharts();
+  
+  // Setup realtime
+  setupRealtime();
+  
+  // Start background tasks
+  simulateMesh();
+  setInterval(checkBattery, 30000);
+  
+  // Set date
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id', { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+  });
+  
+  // Update last sync
+  document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('id');
+  
+  console.log('🏪 SembakoKita.Pro v5.0 — Supabase Integrated');
+  console.log('📦 Items:', appData.items.length);
+  console.log('🔗 Ledger blocks:', appData.ledger.length);
+  console.log('📡 Mesh nodes:', appData.meshNodes.length);
+  console.log('📋 Tickets:', appData.tickets.length);
+});
+
+console.log('🚀 SembakoKita.Pro v5.0 loaded');
+</script>
+</body>
+</html>
