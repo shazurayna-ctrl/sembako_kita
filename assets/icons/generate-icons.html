@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Generate PWA Icons</title>
+<style>
+  body { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 20px; 
+    background: #1e293b; 
+    padding: 20px; 
+    font-family: sans-serif; 
+    justify-content: center;
+  }
+  .icon-container { 
+    background: #065f46; 
+    border-radius: 20%; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    color: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .icon-container .sk { 
+    font-weight: 900; 
+    color: white; 
+    font-family: Arial, sans-serif;
+  }
+  .icon-container .sub { 
+    font-weight: 600; 
+    color: #f59e0b; 
+    font-family: Arial, sans-serif;
+  }
+  .icon-container .deco {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #f59e0b;
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+  .size-label { 
+    color: #94a3b8; 
+    font-size: 12px; 
+    margin-top: 8px; 
+    text-align: center; 
+  }
+  .download-btn { 
+    background: #f59e0b; 
+    color: #1e293b; 
+    border: none; 
+    padding: 8px 16px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .download-btn:hover { background: #fbbf24; }
+  .wrapper { text-align: center; padding: 10px; }
+  .title {
+    color: white;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .title h1 { margin: 0; }
+  .title p { color: #94a3b8; margin: 5px 0; }
+  .title code { background: #334155; padding: 2px 8px; border-radius: 4px; color: #f59e0b; }
+</style>
+</head>
+<body>
+
+<div class="title">
+  <h1>🎨 PWA Icon Generator</h1>
+  <p>Klik tombol Download untuk setiap ukuran icon</p>
+  <p>Simpan semua file PNG ke folder <code>assets/icons/</code></p>
+</div>
+
+<div id="icons"></div>
+
+<script>
+const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+function generateIcon(size) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'wrapper';
+  
+  const container = document.createElement('div');
+  container.className = 'icon-container';
+  container.style.width = size + 'px';
+  container.style.height = size + 'px';
+  
+  const fontSize = size * 0.45;
+  const subFontSize = size * 0.08;
+  const dotSize = size * 0.03;
+  
+  // Decorative dots
+  const dots = [
+    [10, 10], [size-10, 10], [10, size-10], [size-10, size-10]
+  ];
+  dots.forEach(([x, y]) => {
+    const dot = document.createElement('div');
+    dot.className = 'deco';
+    dot.style.left = x + 'px';
+    dot.style.top = y + 'px';
+    dot.style.width = dotSize + 'px';
+    dot.style.height = dotSize + 'px';
+    container.appendChild(dot);
+  });
+  
+  const sk = document.createElement('div');
+  sk.className = 'sk';
+  sk.style.fontSize = fontSize + 'px';
+  sk.style.lineHeight = '1';
+  sk.textContent = 'SK';
+  container.appendChild(sk);
+  
+  const sub = document.createElement('div');
+  sub.className = 'sub';
+  sub.style.fontSize = subFontSize + 'px';
+  sub.style.marginTop = (size * 0.02) + 'px';
+  sub.textContent = 'SembakoKita';
+  container.appendChild(sub);
+  
+  wrapper.appendChild(container);
+  
+  const label = document.createElement('div');
+  label.className = 'size-label';
+  label.textContent = `${size}x${size}`;
+  wrapper.appendChild(label);
+  
+  const btn = document.createElement('button');
+  btn.className = 'download-btn';
+  btn.textContent = '📥 Download PNG';
+  btn.onclick = () => downloadIcon(container, size);
+  wrapper.appendChild(btn);
+  
+  return wrapper;
+}
+
+function downloadIcon(element, size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  
+  // Background with rounded corners
+  const radius = size * 0.2;
+  ctx.fillStyle = '#065f46';
+  ctx.beginPath();
+  ctx.moveTo(radius, 0);
+  ctx.lineTo(size - radius, 0);
+  ctx.quadraticCurveTo(size, 0, size, radius);
+  ctx.lineTo(size, size - radius);
+  ctx.quadraticCurveTo(size, size, size - radius, size);
+  ctx.lineTo(radius, size);
+  ctx.quadraticCurveTo(0, size, 0, size - radius);
+  ctx.lineTo(0, radius);
+  ctx.quadraticCurveTo(0, 0, radius, 0);
+  ctx.closePath();
+  ctx.fill();
+  
+  // Decorative dots
+  ctx.fillStyle = '#f59e0b';
+  ctx.globalAlpha = 0.3;
+  const dotSize = size * 0.03;
+  const positions = [
+    [size * 0.08, size * 0.08],
+    [size * 0.92, size * 0.08],
+    [size * 0.08, size * 0.92],
+    [size * 0.92, size * 0.92]
+  ];
+  positions.forEach(([x, y]) => {
+    ctx.beginPath();
+    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  
+  // Draw SK
+  ctx.fillStyle = 'white';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `bold ${size * 0.45}px Arial, sans-serif`;
+  ctx.fillText('SK', size/2, size * 0.42);
+  
+  // Draw subtitle
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = `600 ${size * 0.08}px Arial, sans-serif`;
+  ctx.fillText('SembakoKita', size/2, size * 0.65);
+  
+  // Download
+  const link = document.createElement('a');
+  link.download = `icon-${size}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+// Render all icons
+const container = document.getElementById('icons');
+sizes.forEach(size => {
+  container.appendChild(generateIcon(size));
+});
+</script>
+</body>
+</html>
