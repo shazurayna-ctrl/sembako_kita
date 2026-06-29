@@ -78,6 +78,9 @@
   <h1>🎨 PWA Icon Generator</h1>
   <p>Klik tombol Download untuk setiap ukuran icon</p>
   <p>Simpan semua file PNG ke folder <code>assets/icons/</code></p>
+  <button onclick="downloadAll()" style="background:#10b981;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:700;font-size:16px;margin:20px 0;">
+    📦 DOWNLOAD SEMUA (8 ICONS)
+  </button>
 </div>
 
 <div id="icons"></div>
@@ -204,6 +207,24 @@ function downloadIcon(element, size) {
 const container = document.getElementById('icons');
 sizes.forEach(size => {
   container.appendChild(generateIcon(size));
+}
+
+function downloadAll() {
+  const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+  let index = 0;
+  
+  function downloadNext() {
+    if (index < sizes.length) {
+      const size = sizes[index];
+      const wrapper = document.querySelectorAll('.wrapper')[index];
+      const container = wrapper.querySelector('.icon-container');
+      downloadIcon(container, size);
+      index++;
+      setTimeout(downloadNext, 500); // Delay 500ms antar download
+    }
+  }
+  
+  downloadNext();
 });
 </script>
 </body>
