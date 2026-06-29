@@ -3,6 +3,7 @@
   "short_name": "SembakoKita",
   "description": "Ekosistem Krisis Pangan — Sistem Logistik & Barter Mandiri",
   "start_url": "/sembako_kita/",
+  "scope": "/sembako_kita/",
   "display": "standalone",
   "background_color": "#065f46",
   "theme_color": "#065f46",
@@ -10,58 +11,52 @@
   "categories": ["food", "utilities", "productivity"],
   "icons": [
     {
-      "src": "/icons/icon-72x72.png",
+      "src": "/sembako_kita/icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-96x96.png",
+      "src": "/sembako_kita/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-128x128.png",
+      "src": "/sembako_kita/icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-144x144.png",
+      "src": "/sembako_kita/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      ""src": "/icons/icon-152x152.png",
+      "src": "/sembako_kita/icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/sembako_kita/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      ""src": "/icons/icon-384x384.png",
+      "src": "/sembako_kita/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      ""src": "/icons/icon-152x152.png",
+      "src": "/sembako_kita/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      ""src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -70,64 +65,36 @@
       "short_name": "Dashboard",
       "description": "Lihat dashboard posko",
       "url": "/sembako_kita/#dashboard",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/sembako_kita/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Kasir",
       "short_name": "Kasir",
       "description": "Buka kasir retail",
       "url": "/sembako_kita/#cashier",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/sembako_kita/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Laporan",
       "short_name": "Laporan",
       "description": "Buat laporan baru",
       "url": "/sembako_kita/#tickets",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
-    }
-  ]
-  {
-  "icons": [
-    {
-      "src": "assets/icons/icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "icons": [
+        {
+          "src": "/sembako_kita/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }
