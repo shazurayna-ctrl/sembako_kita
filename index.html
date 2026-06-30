@@ -3878,8 +3878,51 @@ console.log('🚀 SembakoKita.Pro v5.0 loaded');
 
   <script type="module">
   import { LocalBrain } from './js/agent/local-brain.js';
-  window.brain = new LocalBrain();
+  
+  // Inisialisasi AI agentic
+  const brain = new LocalBrain({
+    mode: 'auto',
+    securityLevel: 'maximum',
+    voiceEnabled: true
+  });
+
+  // Simpan ke window biar bisa dipanggil dari mana aja
+  window.brain = brain;
+
   console.log('🧠 AI Agentic SembakoKita.Pro siap!');
+  
+  // Contoh: binding ke tombol chat
+  document.addEventListener('DOMContentLoaded', () => {
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+    const chatResponse = document.getElementById('chatResponse');
+
+    if (chatSend) {
+      chatSend.addEventListener('click', async () => {
+        const text = chatInput?.value || '';
+        if (text.trim()) {
+          const response = await brain.process(text, 'text');
+          if (chatResponse) {
+            chatResponse.innerText = response;
+          }
+          if (chatInput) chatInput.value = '';
+        }
+      });
+    }
+
+    // Voice button kalo ada
+    const voiceBtn = document.getElementById('voiceBtn');
+    if (voiceBtn) {
+      voiceBtn.addEventListener('click', async () => {
+        const response = await brain.process(null, 'voice');
+        if (chatResponse) {
+          chatResponse.innerText = response;
+        }
+        // Baca hasil pake suara
+        brain.voice.speak(response);
+      });
+    }
+  });
 </script>
 </body>
 </html>
