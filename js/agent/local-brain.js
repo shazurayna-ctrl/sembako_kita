@@ -9,8 +9,9 @@ import { ActionExecutor } from './action-executor.js';
 import { SelfOptimizer } from './self-optimizer.js';
 
 export class LocalBrain {
-  constructor(config = {}) {
-    this.config = {
+  constructor(import { ErrorHandler } from './error-handler.js';) {
+  // ...
+    this.errorHandler = new ErrorHandler(); {
       mode: 'auto', // auto | normal | krisis | survival
       securityLevel: 'maximum',
       voiceEnabled: true,
