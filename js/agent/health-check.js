@@ -1,3 +1,4 @@
+// web-pwa/js/agent/health-check.js
 export class HealthCheck {
   constructor() {
     this.status = {
