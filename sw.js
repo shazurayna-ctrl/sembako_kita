@@ -1,20 +1,91 @@
 // ============================================
-// SERVICE WORKER — SembakoKita.Pro v5.0
+// SERVICE WORKER — SembakoKita.Pro v2026.07.01
 // ============================================
 
-const CACHE_NAME = 'sembakokita-v5';
+const CACHE_NAME = 'sembakokita-v2026.07.01';
 const OFFLINE_URL = '/offline.html';
 
-// Assets yang di-cache
+// ============================================
+// PRECACHE URLS — SEMUA FILE YANG DI-CACHE
+// ============================================
 const PRECACHE_URLS = [
+  // === ROOT & HTML ===
   '/',
   '/index.html',
+  '/offline.html',
   '/manifest.json',
+
+  // === CSS ===
   '/css/style.css',
-  '/js/app.js',
-  '/js/supabase.js',
+  '/css/style-normal.css',
+  '/css/style-krisis.css',
+  '/css/style-survival.css',
+
+  // === ICON ===
+  '/assets/icons/icon-72.png',
+  '/assets/icons/icon-96.png',
+  '/assets/icons/icon-128.png',
+  '/assets/icons/icon-144.png',
+  '/assets/icons/icon-152.png',
   '/assets/icons/icon-192.png',
-  '/assets/icons/icon-512.png'
+  '/assets/icons/icon-384.png',
+  '/assets/icons/icon-512.png',
+
+  // === CORE ===
+  '/js/core/app.js',
+  '/js/core/supabase.js',
+  '/js/core/state-manager.js',
+  '/js/core/components-ui.js',
+
+  // === AGENT (9 FILE) ===
+  '/js/agent/config.js',
+  '/js/agent/error-handler.js',
+  '/js/agent/health-check.js',
+  '/js/agent/security-guard.js',
+  '/js/agent/voice-engine.js',
+  '/js/agent/chat-responder.js',
+  '/js/agent/action-executor.js',
+  '/js/agent/self-optimizer.js',
+  '/js/agent/local-brain.js',
+
+  // === ADAPTERS (4 FILE) ===
+  '/js/adapters/device-health.js',
+  '/js/adapters/module-manager.js',
+  '/js/adapters/power-saver.js',
+  '/js/adapters/mode-controller.js',
+
+  // === SYNCHRONIZATION (3 FILE) ===
+  '/js/synchronization/sync-engine.js',
+  '/js/synchronization/background-sync.js',
+  '/js/synchronization/conflict-resolver.js',
+
+  // === UTILS (4 FILE) ===
+  '/js/utils/encryption.js',
+  '/js/utils/compression.js',
+  '/js/utils/validator.js',
+  '/js/utils/logger.js',
+
+  // === MODULES (6 FILE) ===
+  '/js/modules/inventory/inventory-controller.js',
+  '/js/modules/barter/barter-controller.js',
+  '/js/modules/mesh/mesh-controller.js',
+  '/js/modules/ai/ai-assistant.js',
+  '/js/modules/ledger/ledger-controller.js',
+  '/js/modules/defense/security-controller.js',
+
+  // === OPERATIONAL (12 FILE) ===
+  '/js/operational/checklist/checklist-controller.js',
+  '/js/operational/checklist/daily-lesson.js',
+  '/js/operational/checklist/self-practice.js',
+  '/js/operational/checklist/community-tips.js',
+  '/js/operational/reports/report-controller.js',
+  '/js/operational/reports/public-report.js',
+  '/js/operational/reports/neighbor-solution.js',
+  '/js/operational/reports/sos-emergency.js',
+  '/js/operational/funding/funding-controller.js',
+  '/js/operational/funding/report-generator.js',
+  '/js/operational/logistics/logistics-controller.js',
+  '/js/operational/logistics/warung-darurat.js'
 ];
 
 // ============================================
@@ -26,7 +97,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[SW] Precaching assets...');
+        console.log('[SW] Precaching', PRECACHE_URLS.length, 'assets...');
         return cache.addAll(PRECACHE_URLS);
       })
       .then(() => {
@@ -110,14 +181,60 @@ self.addEventListener('fetch', (event) => {
             if (request.headers.get('accept').includes('text/html')) {
               return caches.match(OFFLINE_URL) || new Response(
                 `<html>
-                  <head><title>Offline</title></head>
-                  <body style="font-family:sans-serif;text-align:center;padding:40px;background:#f0fdf4;">
-                    <h1 style="color:#065f46;">📡 Offline</h1>
-                    <p style="color:#64748b;">SembakoKita.Pro sedang offline. Data tetap tersedia di perangkat Anda.</p>
-                    <p style="color:#64748b;">Koneksi internet diperlukan untuk sinkronisasi.</p>
-                    <button onclick="location.reload()" style="padding:12px 24px;background:#065f46;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;">
-                      Coba Lagi
-                    </button>
+                  <head>
+                    <title>Offline — SembakoKita.Pro</title>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                      body {
+                        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                        text-align: center;
+                        padding: 40px 20px;
+                        background: #f0fdf4;
+                        margin: 0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        min-height: 100vh;
+                      }
+                      .container {
+                        max-width: 400px;
+                        background: white;
+                        padding: 40px 32px;
+                        border-radius: 24px;
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+                      }
+                      h1 { color: #065f46; font-size: 28px; margin: 16px 0 8px; }
+                      p { color: #64748b; line-height: 1.6; margin: 8px 0; }
+                      .emoji { font-size: 48px; }
+                      .btn {
+                        display: inline-block;
+                        margin-top: 20px;
+                        padding: 12px 32px;
+                        background: #065f46;
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        font-size: 16px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        text-decoration: none;
+                      }
+                      .btn:hover { background: #047857; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="emoji">📡</div>
+                      <h1>Sedang Offline</h1>
+                      <p>SembakoKita.Pro sedang offline.</p>
+                      <p>Data tetap tersedia di perangkat Anda.</p>
+                      <p style="color:#94a3b8;font-size:14px;">Koneksi internet diperlukan untuk sinkronisasi.</p>
+                      <button class="btn" onclick="location.reload()">
+                        🔄 Coba Lagi
+                      </button>
+                    </div>
                   </body>
                 </html>`,
                 { headers: { 'Content-Type': 'text/html' } }
@@ -142,16 +259,26 @@ self.addEventListener('sync', (event) => {
 
 async function syncData() {
   console.log('[SW] Syncing data...');
-  // Data sync logic here
-  // Kirim data ke Supabase saat online
   try {
+    // Kirim ke Supabase via message ke client
     const clients = await self.clients.matchAll();
     clients.forEach(client => {
       client.postMessage({
-        type: 'SYNC_COMPLETE',
+        type: 'SYNC_TRIGGER',
         timestamp: new Date().toISOString()
       });
     });
+
+    // Simpan status sync
+    await caches.open(CACHE_NAME + '-meta')
+      .then(cache => {
+        cache.put('/sync-status', new Response(JSON.stringify({
+          lastSync: new Date().toISOString(),
+          status: 'success'
+        })));
+      });
+
+    console.log('[SW] Sync complete');
   } catch (error) {
     console.error('[SW] Sync failed:', error);
   }
@@ -163,7 +290,13 @@ async function syncData() {
 self.addEventListener('push', (event) => {
   console.log('[SW] Push received:', event);
   
-  const data = event.data ? event.data.json() : {};
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'SembakoKita.Pro', body: 'Ada notifikasi baru' };
+  }
+
   const title = data.title || 'SembakoKita.Pro';
   const options = {
     body: data.body || 'Ada notifikasi baru dari posko',
@@ -171,16 +304,17 @@ self.addEventListener('push', (event) => {
     badge: '/assets/icons/icon-72.png',
     vibrate: [200, 100, 200],
     data: {
-      url: data.url || '/'
+      url: data.url || '/',
+      type: data.type || 'info'
     },
     actions: [
       {
         action: 'open',
-        title: 'Buka'
+        title: '📱 Buka'
       },
       {
         action: 'dismiss',
-        title: 'Tutup'
+        title: '✖ Tutup'
       }
     ]
   };
@@ -202,7 +336,7 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
   
-  const url = event.notification.data.url || '/';
+  const url = event.notification.data?.url || '/';
   
   event.waitUntil(
     self.clients.matchAll({ type: 'window' })
@@ -225,17 +359,48 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('message', (event) => {
   console.log('[SW] Message received:', event.data);
   
-  if (event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  
-  if (event.data.type === 'CACHE_CLEAR') {
-    caches.delete(CACHE_NAME)
-      .then(() => {
-        console.log('[SW] Cache cleared');
-        event.ports[0].postMessage({ success: true });
-      });
+  const { type, payload } = event.data || {};
+
+  switch (type) {
+    case 'SKIP_WAITING':
+      self.skipWaiting();
+      break;
+
+    case 'CACHE_CLEAR':
+      caches.delete(CACHE_NAME)
+        .then(() => {
+          console.log('[SW] Cache cleared');
+          if (event.ports && event.ports.length) {
+            event.ports[0].postMessage({ success: true });
+          }
+        });
+      break;
+
+    case 'GET_SYNC_STATUS':
+      caches.open(CACHE_NAME + '-meta')
+        .then(cache => cache.match('/sync-status'))
+        .then(response => response ? response.json() : null)
+        .then(data => {
+          if (event.ports && event.ports.length) {
+            event.ports[0].postMessage({ status: data || { lastSync: null, status: 'unknown' } });
+          }
+        });
+      break;
+
+    case 'TRIGGER_SYNC':
+      event.waitUntil(syncData());
+      break;
+
+    default:
+      console.log('[SW] Unknown message type:', type);
   }
 });
 
-console.log('🚀 Service Worker loaded');
+// ============================================
+// UNHANDLED REJECTION HANDLER
+// ============================================
+self.addEventListener('unhandledrejection', (event) => {
+  console.error('[SW] Unhandled rejection:', event.reason);
+});
+
+console.log('🚀 SembakoKita.Pro Service Worker v2026.07.01 loaded');
