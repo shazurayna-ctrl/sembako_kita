@@ -42,3 +42,40 @@ sembakokita-pro/
 ├── backend-hub/ # NestJS AI Engine (Qwen 3.7)
 ├── tests/ # Unit & integration tests
 └── docs/ # Dokumentasi
+
+
+📱 Tech Stack
+Layer	Teknologi
+Frontend	PWA (HTML, CSS, JS) + Chart.js
+Backend	Supabase (PostgreSQL)
+AI Agentic	Qwen 3.7 (NestJS) + Vosk (offline voice)
+Desktop/Mobile	Tauri (Rust)
+Mesh Network	Bluetooth BLE 5.0 + Gossip Protocol
+Blockchain	SHA-256 mini blockchain (lokal)
+Enkripsi	AES-256-GCM + PBKDF2
+🌍 Filosofi
+"Teknologi untuk rakyat, bukan untuk elite."
+
+Offline-first: Rakyat di pelosok tetap bisa pakai
+
+Hemat daya: HP jadul (RAM 1GB) tetap jalan
+
+Open-source: Transparan, bisa diaudit siapa saja
+
+Gotong royong: Barter, relawan, dan solusi dari tetangga
+
+👥 Kontribusi
+Kami terbuka untuk kontribusi dari siapa saja.
+Silakan buat Issue atau Pull Request di repo ini.
+
+Demi rakyat, bro! 🇮🇩
+
+📄 Lisensi
+MIT License — Bebas digunakan, dimodifikasi, dan disebarluaskan.
+
+🙏 Terima Kasih
+Pedagang kecil dan warung sembako yang menjadi inspirasi
+
+Komunitas open-source yang membuat ini semua mungkin
+
+Rakyat Indonesia yang selalu bergotong royong
