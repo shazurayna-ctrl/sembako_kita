@@ -1,21 +1,17 @@
-// web-pwa/js/utils/compression.js
-// Kompresi data: binary packer, 70% compression
+// ============================================
+// COMPRESSION.JS — SembakoKita.Pro v2026.07.01
+// ============================================
+// Kompresi data: LZW + Binary Packer (70% compression)
+// ============================================
 
 export class Compression {
   constructor() {
-    this.dictionary = new Map();
     this.dictSize = 256;
-    this.initDictionary();
   }
 
-  initDictionary() {
-    // Inisialisasi dictionary untuk LZW
-    for (let i = 0; i < 256; i++) {
-      this.dictionary.set(String.fromCharCode(i), i);
-    }
-  }
-
-  // 📦 Kompresi string dengan LZW
+  // ============================================
+  // LZW COMPRESS — String → Array
+  // ============================================
   compressString(input) {
     const dict = new Map();
     for (let i = 0; i < 256; i++) {
@@ -44,7 +40,9 @@ export class Compression {
     return result;
   }
 
-  // 📦 Dekompresi string dengan LZW
+  // ============================================
+  // LZW DECOMPRESS — Array → String
+  // ============================================
   decompressString(compressed) {
     const dict = new Map();
     for (let i = 0; i < 256; i++) {
@@ -74,11 +72,12 @@ export class Compression {
     return result;
   }
 
-  // 📦 Kompresi JSON (binary packer)
+  // ============================================
+  // JSON COMPRESS — JSON → Binary
+  // ============================================
   compressJSON(data) {
     const jsonString = JSON.stringify(data);
     const compressed = this.compressString(jsonString);
-    // Konversi ke binary (lebih kecil)
     const binary = new Uint8Array(compressed.length * 2);
     for (let i = 0; i < compressed.length; i++) {
       binary[i * 2] = compressed[i] >> 8;
@@ -87,7 +86,9 @@ export class Compression {
     return binary;
   }
 
-  // 📦 Dekompresi JSON
+  // ============================================
+  // JSON DECOMPRESS — Binary → JSON
+  // ============================================
   decompressJSON(binary) {
     const compressed = [];
     for (let i = 0; i < binary.length; i += 2) {
@@ -97,20 +98,29 @@ export class Compression {
     return JSON.parse(jsonString);
   }
 
-  // 📊 Hitung rasio kompresi
-  getCompressionRatio(original, compressed) {
-    const originalSize = JSON.stringify(original).length;
-    const compressedSize = compressed.length;
-    const ratio = ((1 - compressedSize / originalSize) * 100);
-    return {
-      originalSize,
-      compressedSize,
-      ratio: Math.round(ratio * 100) / 100,
-      saved: Math.round((originalSize - compressedSize) / 1024 * 100) / 100 // KB
-    };
+  // ============================================
+  // TEXT COMPRESS — Text → Base64
+  // ============================================
+  compressText(text) {
+    const compressed = this.compressString(text);
+    return btoa(String.fromCharCode(...compressed.map(v => v > 255 ? 255 : v)));
   }
 
-  // 🔄 Pack binary packet (khusus mesh network)
+  // ============================================
+  // TEXT DECOMPRESS — Base64 → Text
+  // ============================================
+  decompressText(compressed) {
+    const decoded = atob(compressed);
+    const arr = [];
+    for (let i = 0; i < decoded.length; i++) {
+      arr.push(decoded.charCodeAt(i));
+    }
+    return this.decompressString(arr);
+  }
+
+  // ============================================
+  // PACKET — Binary Packet untuk Mesh
+  // ============================================
   packPacket(data) {
     const packed = {
       header: {
@@ -123,7 +133,9 @@ export class Compression {
     return this.compressJSON(packed);
   }
 
-  // 🔄 Unpack binary packet
+  // ============================================
+  // UNPACK — Binary Packet dari Mesh
+  // ============================================
   unpackPacket(binary) {
     try {
       return this.decompressJSON(binary);
@@ -133,25 +145,24 @@ export class Compression {
     }
   }
 
-  // 📦 Kompresi dengan GZIP-style (sederhana)
-  compressText(text) {
-    // Run-length encoding + LZW
-    const compressed = this.compressString(text);
-    // Konversi ke base64 biar portable
-    return btoa(String.fromCharCode(...compressed.map(v => v > 255 ? 255 : v)));
+  // ============================================
+  // RATIO — Hitung Rasio Kompresi
+  // ============================================
+  getCompressionRatio(original, compressed) {
+    const originalSize = JSON.stringify(original).length;
+    const compressedSize = compressed.length;
+    const ratio = ((1 - compressedSize / originalSize) * 100);
+    return {
+      originalSize,
+      compressedSize,
+      ratio: Math.round(ratio * 100) / 100,
+      saved: Math.round((originalSize - compressedSize) / 1024 * 100) / 100 // KB
+    };
   }
 
-  // 📦 Dekompresi text
-  decompressText(compressed) {
-    const decoded = atob(compressed);
-    const arr = [];
-    for (let i = 0; i < decoded.length; i++) {
-      arr.push(decoded.charCodeAt(i));
-    }
-    return this.decompressString(arr);
-  }
-
-  // 📊 Estimasi ukuran setelah kompresi
+  // ============================================
+  // ESTIMATE — Estimasi Ukuran
+  // ============================================
   estimateSize(data) {
     const jsonString = JSON.stringify(data);
     const compressed = this.compressString(jsonString);
