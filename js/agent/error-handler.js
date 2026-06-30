@@ -1,3 +1,4 @@
+// web-pwa/js/agent/error-handler.js
 export class ErrorHandler {
   constructor() {
     this.errors = [];
