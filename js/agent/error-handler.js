@@ -6,6 +6,7 @@ export class ErrorHandler {
   }
 
   setupGlobalHandler() {
+    // Tangkap uncaught error
     window.addEventListener('error', (event) => {
       this.logError({
         type: 'uncaught',
@@ -16,9 +17,11 @@ export class ErrorHandler {
         stack: event.error?.stack,
         time: new Date().toISOString()
       });
+      // Tampilkan ke user (tapi gak bikin panik)
       console.warn('[ERROR]', event.message);
     });
 
+    // Tangkap promise rejection
     window.addEventListener('unhandledrejection', (event) => {
       this.logError({
         type: 'unhandled-rejection',
@@ -32,6 +35,7 @@ export class ErrorHandler {
 
   logError(error) {
     this.errors.push(error);
+    // Simpan ke IndexedDB buat debugging
     this.saveToDB(error);
   }
 
