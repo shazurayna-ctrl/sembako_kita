@@ -3924,5 +3924,16 @@ console.log('🚀 SembakoKita.Pro v5.0 loaded');
     }
   });
 </script>
+  <!-- ========== AI AGENTIC SEMBAKOKITA.PRO ========== -->
+<script type="module">
+  import { LocalBrain } from './js/agent/local-brain.js';
+  window.brain = new LocalBrain({
+    mode: 'auto',
+    securityLevel: 'maximum',
+    voiceEnabled: true
+  });
+  console.log('🧠 AI Agentic SembakoKita.Pro siap!');
+</script>
+<!-- ================================================ -->
 </body>
 </html>
