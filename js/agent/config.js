@@ -1,4 +1,3 @@
-// web-pwa/js/agent/config.js
 export const CONFIG = {
   mode: 'auto',
   security: {
