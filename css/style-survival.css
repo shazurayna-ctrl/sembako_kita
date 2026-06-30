@@ -1,0 +1,120 @@
+/* web-pwa/css/style-survival.css */
+/* Mode Survival — Hitam-putih, super hemat, tanpa gambar */
+
+.mode-survival {
+  --primary: #333333;
+  --secondary: #555555;
+  --danger: #000000;
+  --warning: #444444;
+  --background: #f0f0f0;
+  --text: #000000;
+  --card-bg: #ffffff;
+  --shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.mode-survival * {
+  transition: none !important;
+  animation: none !important;
+  filter: grayscale(1) !important;
+}
+
+.mode-survival .card {
+  background: var(--card-bg);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  padding: 8px;
+  border: 1px solid #999;
+}
+
+.mode-survival .btn-primary,
+.mode-survival .btn-success,
+.mode-survival .btn-danger,
+.mode-survival .btn-warning {
+  background: #333 !important;
+  color: white !important;
+  padding: 6px 12px;
+  border: 1px solid #666;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.mode-survival .sidebar {
+  background: white;
+  border-right: 1px solid #999;
+}
+
+.mode-survival .sidebar-item {
+  padding: 6px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mode-survival .sidebar-item.active {
+  background: #333;
+  color: white;
+}
+
+/* Semua gambar disembunyikan */
+.mode-survival img,
+.mode-survival video,
+.mode-survival .image,
+.mode-survival .icon {
+  display: none !important;
+}
+
+/* Font besar & tebal (mudah dibaca) */
+.mode-survival h1 { font-size: 24px; font-weight: 900; }
+.mode-survival h2 { font-size: 20px; font-weight: 900; }
+.mode-survival h3 { font-size: 18px; font-weight: 700; }
+.mode-survival p, .mode-survival span { font-size: 16px; font-weight: 500; }
+.mode-survival .small { font-size: 14px; }
+
+/* Hanya border hitam-putih */
+.mode-survival .card,
+.mode-survival .sidebar,
+.mode-survival .btn-primary {
+  border: 1px solid #000 !important;
+}
+
+/* Background solid */
+.mode-survival body {
+  background: #f0f0f0 !important;
+}
+
+.mode-survival .card {
+  background: white !important;
+}
+
+/* Tidak ada shadow yang rumit */
+.mode-survival * {
+  box-shadow: none !important;
+}
+
+/* Teks besar untuk SOS */
+.mode-survival .sos-text {
+  font-size: 32px;
+  font-weight: 900;
+  color: #000;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Progress bar sederhana */
+.mode-survival .progress {
+  background: #ddd;
+  height: 20px;
+  border-radius: 2px;
+  border: 1px solid #000;
+}
+
+.mode-survival .progress .fill {
+  background: #000;
+  height: 100%;
+  border-radius: 0;
+}
