@@ -6,33 +6,31 @@
 <meta name="theme-color" content="#065f46">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>SembakoKita.Pro — Ekosistem Krisis Pangan v5</title>
+<title>SembakoKita.Pro — Ekosistem Krisis Pangan v2026.07.01</title>
 
-<!-- CSS -->
+<!-- ============================================
+   CSS — SEMUA FILE MODE
+   ============================================ -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style-normal.css">
+<link rel="stylesheet" href="css/style-krisis.css">
+<link rel="stylesheet" href="css/style-survival.css">
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
-<!-- Sementara pakai placeholder -->
-<link rel="apple-touch-icon" href="https://via.placeholder.com/192/065f46/FFFFFF?text=SK">
-<!-- <link rel="apple-touch-icon" href="assets/icons/icon-192.png"> -->
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 
-<!-- Scripts -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Service Worker Registration -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sembako_kita/sw.js')
-      .then(reg => console.log('✅ SW registered:', reg))
-      .catch(err => console.error('❌ SW registration failed:', err));
-  });
-}
-</script>
-
 <style>
+/* ============================================
+   ROOT VARIABLES & GLOBAL STYLE (MINIMAL)
+   ============================================ */
 :root {
   --primary: #065f46;
   --primary-light: #059669;
@@ -58,6 +56,24 @@ if ('serviceWorker' in navigator) {
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  transition: var(--transition);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
+
+/* ============================================
+   THEME OVERRIDES (dari CSS terpisah)
+   ============================================ */
 [data-theme="crisis"] {
   --primary: #991b1b;
   --primary-light: #dc2626;
@@ -85,21 +101,9 @@ if ('serviceWorker' in navigator) {
   --border: #d1d5db;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  overflow-x: hidden;
-  transition: var(--transition);
-  min-height: 100vh;
-}
-
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
-
+/* ============================================
+   APP CONTAINER & SIDEBAR
+   ============================================ */
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -251,6 +255,9 @@ body {
   50% { opacity: 0.5; }
 }
 
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
 .main-content {
   flex: 1;
   margin-left: 280px;
@@ -386,6 +393,9 @@ body {
   color: white;
 }
 
+/* ============================================
+   PAGE CONTENT & CARDS
+   ============================================ */
 .page-content {
   padding: 24px;
 }
@@ -430,6 +440,9 @@ body {
   margin-top: 2px;
 }
 
+/* ============================================
+   STATS GRID
+   ============================================ */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -493,6 +506,9 @@ body {
 .stat-trend.up { color: var(--success); }
 .stat-trend.down { color: var(--danger); }
 
+/* ============================================
+   GRID LAYOUTS
+   ============================================ */
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -507,6 +523,9 @@ body {
   margin-bottom: 24px;
 }
 
+/* ============================================
+   TABLES
+   ============================================ */
 .table-container {
   overflow-x: auto;
   border-radius: var(--radius-sm);
@@ -540,6 +559,9 @@ tr:hover td {
   background: rgba(5, 150, 105, 0.03);
 }
 
+/* ============================================
+   BADGES
+   ============================================ */
 .badge-status {
   display: inline-flex;
   align-items: center;
@@ -556,6 +578,9 @@ tr:hover td {
 .badge-info { background: #dbeafe; color: #2563eb; }
 .badge-purple { background: #f3e8ff; color: #9333ea; }
 
+/* ============================================
+   BUTTONS
+   ============================================ */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -581,6 +606,9 @@ tr:hover td {
 .btn-lg { padding: 12px 24px; font-size: 15px; }
 .btn-block { width: 100%; justify-content: center; }
 
+/* ============================================
+   FORMS
+   ============================================ */
 .form-group {
   margin-bottom: 16px;
 }
@@ -620,6 +648,9 @@ select.form-input {
   padding-right: 32px;
 }
 
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
 .progress-bar {
   height: 8px;
   background: var(--border);
@@ -639,6 +670,9 @@ select.form-input {
 .progress-fill.orange { background: linear-gradient(90deg, #d97706, #f59e0b); }
 .progress-fill.red { background: linear-gradient(90deg, #dc2626, #f87171); }
 
+/* ============================================
+   CHECKLIST
+   ============================================ */
 .checklist-item {
   display: flex;
   align-items: center;
@@ -694,6 +728,9 @@ select.form-input {
   color: var(--text-secondary);
 }
 
+/* ============================================
+   POS / CASHIER
+   ============================================ */
 .pos-container {
   display: grid;
   grid-template-columns: 1fr 380px;
@@ -833,6 +870,9 @@ select.form-input {
   margin-top: 8px;
 }
 
+/* ============================================
+   KANBAN / CHECKLIST
+   ============================================ */
 .kanban-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -888,6 +928,9 @@ select.form-input {
   transform: translateY(-1px);
 }
 
+/* ============================================
+   MODAL
+   ============================================ */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -956,6 +999,9 @@ select.form-input {
 .modal-body { padding: 20px; }
 .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
 
+/* ============================================
+   TOAST
+   ============================================ */
 .toast-container {
   position: fixed;
   top: 20px;
@@ -990,6 +1036,9 @@ select.form-input {
   to { opacity: 1; transform: translateX(0); }
 }
 
+/* ============================================
+   FAB
+   ============================================ */
 .fab {
   position: fixed;
   bottom: 24px;
@@ -1015,6 +1064,9 @@ select.form-input {
   box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
 }
 
+/* ============================================
+   TRUST CIRCLE
+   ============================================ */
 .trust-circle {
   width: 60px;
   height: 60px;
@@ -1032,6 +1084,15 @@ select.form-input {
 .trust-mid { background: linear-gradient(135deg, #d97706, #f59e0b); }
 .trust-low { background: linear-gradient(135deg, #dc2626, #f87171); }
 
+.trust-meter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ============================================
+   MESH VISUAL
+   ============================================ */
 .mesh-visual {
   position: relative;
   height: 300px;
@@ -1076,11 +1137,17 @@ select.form-input {
   50% { box-shadow: 0 0 40px rgba(5, 150, 105, 0.6); }
 }
 
+/* ============================================
+   CHART CONTAINER
+   ============================================ */
 .chart-container {
   position: relative;
   height: 250px;
 }
 
+/* ============================================
+   EMERGENCY BANNER
+   ============================================ */
 .emergency-banner {
   background: linear-gradient(90deg, #dc2626, #991b1b);
   color: white;
@@ -1093,6 +1160,9 @@ select.form-input {
 
 .emergency-banner.active { display: block; }
 
+/* ============================================
+   SIDEBAR OVERLAY
+   ============================================ */
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -1108,6 +1178,9 @@ select.form-input {
   display: block;
 }
 
+/* ============================================
+   SURVIVAL MODE OVERRIDES
+   ============================================ */
 [data-theme="survival"] * {
   animation: none !important;
   transition: none !important;
@@ -1118,6 +1191,9 @@ select.form-input {
   filter: grayscale(100%);
 }
 
+/* ============================================
+   BARTER EXCHANGE
+   ============================================ */
 .barter-exchange {
   display: flex;
   align-items: center;
@@ -1139,6 +1215,9 @@ select.form-input {
   color: var(--primary);
 }
 
+/* ============================================
+   LEDGER BLOCK
+   ============================================ */
 .ledger-block {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -1155,6 +1234,14 @@ select.form-input {
   word-break: break-all;
 }
 
+.ledger-time {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   CHAT
+   ============================================ */
 .chat-container {
   display: flex;
   flex-direction: column;
@@ -1207,6 +1294,8 @@ select.form-input {
   border-radius: 20px;
   outline: none;
   font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .chat-quick-btns {
@@ -1229,6 +1318,9 @@ select.form-input {
 
 .quick-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 1024px) {
   .grid-2 { grid-template-columns: 1fr; }
   .grid-3 { grid-template-columns: 1fr 1fr; }
@@ -1275,26 +1367,81 @@ select.form-input {
   .page-content { padding: 0 !important; }
   .card { box-shadow: none !important; border: 1px solid #ddd !important; }
 }
+
+/* ============================================
+   ALLOCATION ITEM
+   ============================================ */
+.allocation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.allocation-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.allocation-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.allocation-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ============================================
+   IMPACT COUNTER
+   ============================================ */
+.impact-number {
+  font-size: 48px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.impact-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.impact-counter {
+  padding: 20px 0;
+}
 </style>
 </head>
 <body>
 
-<!-- Emergency Banner -->
+<!-- ============================================
+   EMERGENCY BANNER
+   ============================================ -->
 <div class="emergency-banner" id="emergencyBanner">
   ⚠️ MODE KRISIS AKTIF — Harga sembako dikunci ke HET resmi | Terakhir sinkron: <span id="lastSync">--</span>
 </div>
 
+<!-- ============================================
+   APP CONTAINER
+   ============================================ -->
 <div class="app-container">
+
   <!-- Sidebar Overlay (mobile) -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-  <!-- Sidebar -->
+  <!-- ============================================
+       SIDEBAR
+       ============================================ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">SK</div>
       <div class="sidebar-brand">
         <h1>SembakoKita.Pro</h1>
-        <span>Ekosistem Krisis v5.0</span>
+        <span>Ekosistem Krisis v2026.07.01</span>
       </div>
     </div>
     
@@ -1368,7 +1515,9 @@ select.form-input {
     </div>
   </aside>
 
-  <!-- Main Content -->
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
   <main class="main-content" id="mainContent">
     <!-- Top Bar -->
     <header class="topbar">
@@ -1395,10 +1544,15 @@ select.form-input {
         <button class="topbar-btn" onclick="exportData()" title="Ekspor Data">
           <i class="bi bi-download"></i>
         </button>
+        <button class="topbar-btn" id="sosBtn" title="SOS Darurat" style="background:var(--danger);color:white;border-color:var(--danger);">
+          <i class="bi bi-exclamation-triangle"></i>
+        </button>
       </div>
     </header>
 
-    <!-- Pages -->
+    <!-- ============================================
+         PAGE CONTENT
+         ============================================ -->
     <div class="page-content">
       
       <!-- DASHBOARD PAGE -->
@@ -2105,15 +2259,16 @@ select.form-input {
                 <div class="chat-msg bot">Saya bisa membantu: cek stok, harga HET, laporan warga, atau hitung barter.</div>
               </div>
               <div class="chat-quick-btns">
-                <button class="quick-btn" onclick="sendQuickMsg('Cek stok beras')">📦 Cek stok beras</button>
-                <button class="quick-btn" onclick="sendQuickMsg('Harga HET hari ini')">💰 Harga HET</button>
-                <button class="quick-btn" onclick="sendQuickMsg('Laporan darurat')">🚨 Laporan darurat</button>
-                <button class="quick-btn" onclick="sendQuickMsg('Hitung barter')">🔄 Hitung barter</button>
-                <button class="quick-btn" onclick="sendQuickMsg('Status mesh')">📡 Status mesh</button>
+                <button class="quick-btn">📦 Cek stok beras</button>
+                <button class="quick-btn">💰 Harga HET</button>
+                <button class="quick-btn">🚨 Laporan darurat</button>
+                <button class="quick-btn">🔄 Hitung barter</button>
+                <button class="quick-btn">📡 Status mesh</button>
               </div>
               <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendChat()">
-                <button class="btn btn-primary" onclick="sendChat()"><i class="bi bi-send"></i></button>
+                <input type="text" id="chatInput" placeholder="Ketik pesan...">
+                <button class="btn btn-primary" id="chatSend"><i class="bi bi-send"></i></button>
+                <button class="btn btn-secondary" id="voiceBtn"><i class="bi bi-mic"></i></button>
               </div>
             </div>
           </div>
@@ -2291,29 +2446,303 @@ select.form-input {
   </main>
 </div>
 
-<!-- FAB -->
+<!-- ============================================
+   FAB (Floating Action Button)
+   ============================================ -->
 <button class="fab" onclick="openModal('quickAction')" title="Aksi Cepat">
   <i class="bi bi-plus-lg"></i>
 </button>
 
-<!-- Modal -->
+<!-- ============================================
+   MODAL
+   ============================================ -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modalContent">
   </div>
 </div>
 
-<!-- Toast Container -->
+<!-- ============================================
+   TOAST CONTAINER
+   ============================================ -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ============================================
+   SUPABASE CONFIG
+   ============================================ -->
 <script>
-// ============================================
-// SUPABASE CONFIG — GANTI DENGAN CREDENTIALS ANDA
-// ============================================
 const SUPABASE_URL = 'https://rltsdrqyvvqkzusocmlr.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsdHNkcnF5dnZxa3p1c29jbWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MzMwMjcsImV4cCI6MjA5ODIwOTAyN30.xVDjJul05RfuQuE3ExCdB3GfVJrdUbzglv--eISOheM';
+</script>
 
+<!-- ============================================
+   LOAD SEMUA MODULE — SembakoKita.Pro
+   ============================================ -->
+<script type="module">
+  // ============================================
+  // 1. CORE
+  // ============================================
+  import { App } from './js/core/app.js';
+  import { supabase } from './js/core/supabase.js';
+  import { state } from './js/core/state-manager.js';
+  import { ui } from './js/core/components-ui.js';
+  
+  // ============================================
+  // 2. ADAPTERS
+  // ============================================
+  import { DeviceHealth } from './js/adapters/device-health.js';
+  import { ModuleManager } from './js/adapters/module-manager.js';
+  import { ModeController } from './js/adapters/mode-controller.js';
+  import { PowerSaver } from './js/adapters/power-saver.js';
+  
+  // ============================================
+  // 3. AGENT (AI)
+  // ============================================
+  import { LocalBrain } from './js/agent/local-brain.js';
+  import { SecurityGuard } from './js/agent/security-guard.js';
+  import { VoiceEngine } from './js/agent/voice-engine.js';
+  import { ChatResponder } from './js/agent/chat-responder.js';
+  import { ActionExecutor } from './js/agent/action-executor.js';
+  import { SelfOptimizer } from './js/agent/self-optimizer.js';
+  
+  // ============================================
+  // 4. SYNCHRONIZATION
+  // ============================================
+  import { BackgroundSync } from './js/synchronization/background-sync.js';
+  import { ConflictResolver } from './js/synchronization/conflict-resolver.js';
+  import { SyncEngine } from './js/synchronization/sync-engine.js';
+  
+  // ============================================
+  // 5. UTILS
+  // ============================================
+  import { Validator } from './js/utils/validator.js';
+  import { encryption } from './js/utils/encryption.js';
+  import { compression } from './js/utils/compression.js';
+  import { logger } from './js/utils/logger.js';
+  
+  // ============================================
+  // 6. MODULES
+  // ============================================
+  import { InventoryController } from './js/modules/inventory/inventory-controller.js';
+  import { BarterController } from './js/modules/barter/barter-controller.js';
+  import { MeshController } from './js/modules/mesh/mesh-controller.js';
+  import { AIAssistant } from './js/modules/ai/ai-assistant.js';
+  import { LedgerController } from './js/modules/ledger/ledger-controller.js';
+  import { SecurityController } from './js/modules/defense/security-controller.js';
+  
+  // ============================================
+  // 7. OPERATIONAL
+  // ============================================
+  import { ChecklistController } from './js/operational/checklist/checklist-controller.js';
+  import { DailyLesson } from './js/operational/checklist/daily-lesson.js';
+  import { SelfPractice } from './js/operational/checklist/self-practice.js';
+  import { CommunityTips } from './js/operational/checklist/community-tips.js';
+  import { ReportController } from './js/operational/reports/report-controller.js';
+  import { PublicReport } from './js/operational/reports/public-report.js';
+  import { NeighborSolution } from './js/operational/reports/neighbor-solution.js';
+  import { SOSEmergency } from './js/operational/reports/sos-emergency.js';
+  import { FundingController } from './js/operational/funding/funding-controller.js';
+  import { ReportGenerator } from './js/operational/funding/report-generator.js';
+  import { LogisticsController } from './js/operational/logistics/logistics-controller.js';
+  import { WarungDarurat } from './js/operational/logistics/warung-darurat.js';
+  
+  // ============================================
+  // EXPOSE SEMUA KE WINDOW
+  // ============================================
+  window.Sembako = {
+    App,
+    supabase,
+    state,
+    ui,
+    DeviceHealth,
+    ModuleManager,
+    ModeController,
+    PowerSaver,
+    LocalBrain,
+    SecurityGuard,
+    VoiceEngine,
+    ChatResponder,
+    ActionExecutor,
+    SelfOptimizer,
+    BackgroundSync,
+    ConflictResolver,
+    SyncEngine,
+    Validator,
+    encryption,
+    compression,
+    logger,
+    InventoryController,
+    BarterController,
+    MeshController,
+    AIAssistant,
+    LedgerController,
+    SecurityController,
+    ChecklistController,
+    DailyLesson,
+    SelfPractice,
+    CommunityTips,
+    ReportController,
+    PublicReport,
+    NeighborSolution,
+    SOSEmergency,
+    FundingController,
+    ReportGenerator,
+    LogisticsController,
+    WarungDarurat
+  };
+  
+  console.log('📦 Semua module SembakoKita.Pro loaded!');
+  console.log('🧠 AI Agentic siap!');
+  console.log('📦 Supabase client siap!');
+  console.log('📊 State manager siap!');
+  console.log('🎨 UI components siap!');
+</script>
+
+<!-- ============================================
+   AI AGENTIC — VERSI FINAL (TANPA DUPLIKASI)
+   ============================================ -->
+<script type="module">
+  // Import AI Agentic
+  import { LocalBrain } from './js/agent/local-brain.js';
+  import { supabase } from './js/core/supabase.js';
+  import { state } from './js/core/state-manager.js';
+  import { ui } from './js/core/components-ui.js';
+
+  // Inisialisasi AI Agentic
+  const brain = new LocalBrain({
+    mode: 'auto',
+    securityLevel: 'maximum',
+    voiceEnabled: true
+  });
+
+  // Simpan ke window
+  window.brain = brain;
+  window.supabaseClient = supabase;
+  window.state = state;
+  window.ui = ui;
+
+  console.log('🧠 AI Agentic SembakoKita.Pro siap!');
+  console.log('📦 Supabase client siap!');
+  console.log('📊 State manager siap!');
+  console.log('🎨 UI components siap!');
+
+  // ============================================
+  // BINDING UI — Chat, Voice, SOS
+  // ============================================
+  document.addEventListener('DOMContentLoaded', () => {
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+    const chatMessages = document.getElementById('chatMessages');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const sosBtn = document.getElementById('sosBtn');
+
+    // Chat Send
+    if (chatSend && chatInput) {
+      chatSend.addEventListener('click', async () => {
+        const text = chatInput.value.trim();
+        if (text) {
+          // Tampilkan pesan user
+          const userMsg = document.createElement('div');
+          userMsg.className = 'chat-msg user';
+          userMsg.textContent = text;
+          chatMessages.appendChild(userMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          chatInput.value = '';
+
+          // Proses AI
+          const response = await brain.process(text, 'text');
+          const botMsg = document.createElement('div');
+          botMsg.className = 'chat-msg bot';
+          botMsg.textContent = response;
+          chatMessages.appendChild(botMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') chatSend.click();
+      });
+    }
+
+    // Voice Button
+    if (voiceBtn) {
+      voiceBtn.addEventListener('click', async () => {
+        if (!brain.voice.isReady) {
+          ui.showToast('🎤 Voice tidak tersedia di HP ini', 'warning');
+          return;
+        }
+        ui.showToast('🎤 Dengarkan...', 'info');
+        const response = await brain.process(null, 'voice');
+        if (chatMessages) {
+          const botMsg = document.createElement('div');
+          botMsg.className = 'chat-msg bot';
+          botMsg.textContent = response;
+          chatMessages.appendChild(botMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        brain.voice.speak(response);
+      });
+    }
+
+    // SOS Button
+    if (sosBtn) {
+      sosBtn.addEventListener('click', async () => {
+        const response = await brain.process('sos darurat', 'text');
+        if (chatMessages) {
+          const botMsg = document.createElement('div');
+          botMsg.className = 'chat-msg bot';
+          botMsg.textContent = response;
+          chatMessages.appendChild(botMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        ui.showToast('🚨 SOS terkirim!', 'error');
+        brain.voice.speak(response);
+      });
+    }
+
+    // Quick Chat Buttons
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const text = btn.textContent.trim();
+        if (chatMessages) {
+          const userMsg = document.createElement('div');
+          userMsg.className = 'chat-msg user';
+          userMsg.textContent = text;
+          chatMessages.appendChild(userMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        const response = await brain.process(text, 'text');
+        if (chatMessages) {
+          const botMsg = document.createElement('div');
+          botMsg.className = 'chat-msg bot';
+          botMsg.textContent = response;
+          chatMessages.appendChild(botMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+    });
+  });
+
+  // ============================================
+  // AUTO-DETECT MODE HP
+  // ============================================
+  setTimeout(async () => {
+    const mode = brain.device.getMode();
+    if (mode === 'survival') {
+      ui.showToast('⚠️ Mode Survival aktif (baterai/ram rendah)', 'warning');
+      document.documentElement.setAttribute('data-theme', 'survival');
+    } else if (mode === 'krisis') {
+      ui.showToast('⚠️ Mode Krisis aktif', 'warning');
+      document.documentElement.setAttribute('data-theme', 'crisis');
+    }
+  }, 2000);
+</script>
+
+<!-- ============================================
+   MAIN APP SCRIPT (Legacy — untuk UI dashboard)
+   ============================================ -->
+<script>
 // ============================================
-// SUPABASE CLIENT
+// SUPABASE CLIENT (Legacy untuk dashboard)
 // ============================================
 let supabaseClient = null;
 
@@ -3876,64 +4305,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 console.log('🚀 SembakoKita.Pro v5.0 loaded');
 </script>
 
-  <script type="module">
-  import { LocalBrain } from './js/agent/local-brain.js';
-  
-  // Inisialisasi AI agentic
-  const brain = new LocalBrain({
-    mode: 'auto',
-    securityLevel: 'maximum',
-    voiceEnabled: true
+<!-- ============================================
+   SERVICE WORKER REGISTRATION
+   ============================================ -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('✅ SW registered:', reg))
+      .catch(err => console.error('❌ SW registration failed:', err));
   });
-
-  // Simpan ke window biar bisa dipanggil dari mana aja
-  window.brain = brain;
-
-  console.log('🧠 AI Agentic SembakoKita.Pro siap!');
-  
-  // Contoh: binding ke tombol chat
-  document.addEventListener('DOMContentLoaded', () => {
-    const chatInput = document.getElementById('chatInput');
-    const chatSend = document.getElementById('chatSend');
-    const chatResponse = document.getElementById('chatResponse');
-
-    if (chatSend) {
-      chatSend.addEventListener('click', async () => {
-        const text = chatInput?.value || '';
-        if (text.trim()) {
-          const response = await brain.process(text, 'text');
-          if (chatResponse) {
-            chatResponse.innerText = response;
-          }
-          if (chatInput) chatInput.value = '';
-        }
-      });
-    }
-
-    // Voice button kalo ada
-    const voiceBtn = document.getElementById('voiceBtn');
-    if (voiceBtn) {
-      voiceBtn.addEventListener('click', async () => {
-        const response = await brain.process(null, 'voice');
-        if (chatResponse) {
-          chatResponse.innerText = response;
-        }
-        // Baca hasil pake suara
-        brain.voice.speak(response);
-      });
-    }
-  });
+}
 </script>
-  <!-- ========== AI AGENTIC SEMBAKOKITA.PRO ========== -->
-<script type="module">
-  import { LocalBrain } from './js/agent/local-brain.js';
-  window.brain = new LocalBrain({
-    mode: 'auto',
-    securityLevel: 'maximum',
-    voiceEnabled: true
-  });
-  console.log('🧠 AI Agentic SembakoKita.Pro siap!');
-</script>
-<!-- ================================================ -->
+
 </body>
 </html>
