@@ -1,0 +1,14 @@
+{
+  "trigger": "build",
+  "version": "2026.07.01",
+  "mode": "maximal",
+  "agent": {
+    "name": "SembakoBuilder",
+    "security_level": "maximum",
+    "auto_push": true
+  },
+  "supabase": {
+    "url": "https://your-project.supabase.co",
+    "anonKey": "your-anon-key"
+  }
+}
