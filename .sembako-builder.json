@@ -11,4 +11,8 @@
     "url": "https://rltsdrqyvvqkzusocmlr.supabase.co",
     "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsdHNkcnF5dnZxa3p1c29jbWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MzMwMjcsImV4cCI6MjA5ODIwOTAyN30.xVDjJul05RfuQuE3ExCdB3GfVJrdUbzglv--eISOheM"
   }
+  "tauri": {
+    "bundle": ["apk", "exe"],
+    "target": ["android", "windows"]
+  }
 }
