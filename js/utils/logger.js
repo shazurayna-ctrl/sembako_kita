@@ -1,5 +1,8 @@
-// web-pwa/js/utils/logger.js
-// Logging sistem: debug + audit
+// ============================================
+// LOGGER.JS — SembakoKita.Pro v2026.07.01
+// ============================================
+// Logging sistem: debug + audit trail
+// ============================================
 
 export class Logger {
   constructor() {
@@ -14,39 +17,60 @@ export class Logger {
     this.logs = [];
     this.maxLogs = 500;
     this.auditTrail = [];
+    this.isEnabled = true;
     this.init();
   }
 
+  // ============================================
+  // INIT — Setup Console Override
+  // ============================================
   init() {
     // Cek mode debug dari localStorage
     const debugMode = localStorage.getItem('debugMode');
-    if (debugMode === 'true') {
-      this.level = this.levels.DEBUG;
+    if (debugMode === 'false') {
+      this.level = this.levels.NONE;
+      this.isEnabled = false;
     }
 
-    // Tangkap console.log asli
+    // Simpan console asli
     this.originalLog = console.log;
     this.originalWarn = console.warn;
     this.originalError = console.error;
+    this.originalInfo = console.info;
 
+    // Override console.log
     console.log = (...args) => {
       this.log('DEBUG', args);
       this.originalLog(...args);
     };
 
+    // Override console.warn
     console.warn = (...args) => {
       this.log('WARN', args);
       this.originalWarn(...args);
     };
 
+    // Override console.error
     console.error = (...args) => {
       this.log('ERROR', args);
       this.originalError(...args);
     };
+
+    // Override console.info
+    console.info = (...args) => {
+      this.log('INFO', args);
+      this.originalInfo(...args);
+    };
+
+    console.log('[LOGGER] Initialized');
   }
 
-  // 🔥 Logging utama
+  // ============================================
+  // LOG — Logging Utama
+  // ============================================
   log(level, args) {
+    if (!this.isEnabled) return;
+    
     const levelNum = this.levels[level] || this.levels.INFO;
     if (levelNum < this.level) return;
 
@@ -70,14 +94,16 @@ export class Logger {
       this.logs = this.logs.slice(0, this.maxLogs);
     }
 
-    // Simpan ke IndexedDB
+    // Simpan ke IndexedDB (async)
     this.saveToDB(logEntry);
   }
 
-  // 📝 Audit trail (transaksi penting)
+  // ============================================
+  // AUDIT — Audit Trail
+  // ============================================
   audit(action, data, user = 'system') {
     const auditEntry = {
-      id: Date.now().toString(36),
+      id: Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6),
       action: action,
       data: data,
       user: user,
@@ -92,7 +118,9 @@ export class Logger {
     return auditEntry;
   }
 
-  // 📊 Get logs
+  // ============================================
+  // GET LOGS — Ambil Log
+  // ============================================
   getLogs(level = null, limit = 100) {
     let filtered = this.logs;
     if (level) {
@@ -101,19 +129,25 @@ export class Logger {
     return filtered.slice(0, limit);
   }
 
-  // 📊 Get audit trail
+  // ============================================
+  // GET AUDIT — Ambil Audit
+  // ============================================
   getAudit(limit = 50) {
     return this.auditTrail.slice(0, limit);
   }
 
-  // 🔍 Search logs
+  // ============================================
+  // SEARCH — Cari Log
+  // ============================================
   search(query) {
     return this.logs.filter(log => 
       log.message.toLowerCase().includes(query.toLowerCase())
     );
   }
 
-  // 🗄️ Simpan log ke IndexedDB
+  // ============================================
+  // INDEXEDDB — Simpan Log
+  // ============================================
   async saveToDB(logEntry) {
     try {
       const db = await this.openDB();
@@ -125,7 +159,9 @@ export class Logger {
     }
   }
 
-  // 🗄️ Simpan audit ke IndexedDB
+  // ============================================
+  // INDEXEDDB — Simpan Audit
+  // ============================================
   async saveAuditToDB(auditEntry) {
     try {
       const db = await this.openDB();
@@ -137,7 +173,9 @@ export class Logger {
     }
   }
 
-  // 🗄️ Buka IndexedDB
+  // ============================================
+  // INDEXEDDB — Buka Database
+  // ============================================
   openDB() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open('SembakoDB', 1);
@@ -155,7 +193,9 @@ export class Logger {
     });
   }
 
-  // 🌐 Get IP (sederhana)
+  // ============================================
+  // UTILITY — Get IP
+  // ============================================
   getIP() {
     try {
       return 'local';
@@ -164,25 +204,34 @@ export class Logger {
     }
   }
 
-  // 🧹 Clear logs
+  // ============================================
+  // CLEAR — Hapus Log
+  // ============================================
   clearLogs() {
     this.logs = [];
   }
 
-  // 🧹 Clear audit
+  // ============================================
+  // CLEAR — Hapus Audit
+  // ============================================
   clearAudit() {
     this.auditTrail = [];
   }
 
-  // 🔧 Set level
+  // ============================================
+  // SET LEVEL — Ubah Level Logging
+  // ============================================
   setLevel(level) {
     if (this.levels[level] !== undefined) {
       this.level = this.levels[level];
       localStorage.setItem('debugMode', level === 'DEBUG' ? 'true' : 'false');
+      this.isEnabled = level !== 'NONE';
     }
   }
 
-  // 📊 Get stats
+  // ============================================
+  // GET STATS — Statistik Log
+  // ============================================
   getStats() {
     return {
       totalLogs: this.logs.length,
@@ -194,6 +243,34 @@ export class Logger {
         ERROR: this.logs.filter(l => l.level === 'ERROR').length
       }
     };
+  }
+
+  // ============================================
+  // EXPORT — Export Log ke Text
+  // ============================================
+  exportLogs() {
+    let text = `========================================\n`;
+    text += `  LOG EXPORT — SembakoKita.Pro\n`;
+    text += `  Waktu: ${new Date().toISOString()}\n`;
+    text += `========================================\n\n`;
+    
+    for (const log of this.logs.slice(0, 100)) {
+      text += `[${log.time}] [${log.level}] ${log.message}\n`;
+    }
+    
+    return text;
+  }
+
+  // ============================================
+  // DESTROY — Cleanup
+  // ============================================
+  destroy() {
+    // Kembalikan console asli
+    console.log = this.originalLog;
+    console.warn = this.originalWarn;
+    console.error = this.originalError;
+    console.info = this.originalInfo;
+    console.log('[LOGGER] Destroyed');
   }
 }
 
