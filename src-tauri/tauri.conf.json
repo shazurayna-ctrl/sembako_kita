@@ -1,0 +1,234 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "SembakoKita Pro",
+  "version": "2026.07.01",
+  "identifier": "pro.sembakokita.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "distDir": "../web-pwa/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SembakoKita.Pro",
+        "width": 1280,
+        "height": 720,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "skipTaskbar": false,
+        "visible": true,
+        "focus": true,
+        "maximized": false,
+        "label": "main"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' https://*.supabase.co wss://*.supabase.co data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.qwen.ai;"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "identifier": "pro.sembakokita.app",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "../web-pwa/assets/**/*",
+      "../web-pwa/js/**/*",
+      "../web-pwa/css/**/*",
+      "../web-pwa/index.html",
+      "../web-pwa/manifest.json",
+      "../web-pwa/sw.js",
+      "../web-pwa/offline.html"
+    ],
+    "copyright": "© 2026 SembakoKita.Pro Team",
+    "category": "Productivity",
+    "shortDescription": "Ekosistem Krisis Pangan",
+    "longDescription": "SembakoKita.Pro adalah ekosistem krisis pangan dengan offline-first, mesh network, dan AI agentic untuk membantu rakyat kecil.",
+    "createUpdaterArtifacts": true,
+    "linux": {
+      "deb": {
+        "depends": [],
+        "files": {}
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    },
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "10.13",
+      "exceptionDomain": "",
+      "signingIdentity": null,
+      "providerShortName": null,
+      "entitlements": null
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "webviewInstallMode": {
+        "type": "silent",
+        "silent": true
+      },
+      "wix": {
+        "language": "id-ID",
+        "installMode": "perMachine",
+        "fragmentPaths": [],
+        "componentRefs": [],
+        "featureRefs": [],
+        "mergeRefs": [],
+        "componentGroupRefs": [],
+        "bannerPath": null,
+        "dialogImagePath": null,
+        "license": null,
+        "copyright": "© 2026 SembakoKita.Pro Team",
+        "manufacturer": "SembakoKita.Pro Team"
+      }
+    },
+    "android": {
+      "minSdkVersion": 21,
+      "targetSdkVersion": 34,
+      "compileSdkVersion": 34,
+      "buildToolsVersion": "34.0.0",
+      "signing": {
+        "debug": {
+          "keystore": "../android/debug.keystore",
+          "keystorePassword": "android",
+          "keyAlias": "androiddebugkey",
+          "keyPassword": "android"
+        },
+        "release": {
+          "keystore": "../android/release.keystore",
+          "keystorePassword": "$ANDROID_KEYSTORE_PASSWORD",
+          "keyAlias": "$ANDROID_KEY_ALIAS",
+          "keyPassword": "$ANDROID_KEY_PASSWORD"
+        }
+      },
+      "features": {
+        "camera": {
+          "permissions": ["android.permission.CAMERA"]
+        },
+        "bluetooth": {
+          "permissions": [
+            "android.permission.BLUETOOTH",
+            "android.permission.BLUETOOTH_ADMIN",
+            "android.permission.BLUETOOTH_SCAN",
+            "android.permission.BLUETOOTH_CONNECT"
+          ]
+        },
+        "location": {
+          "permissions": [
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.ACCESS_COARSE_LOCATION"
+          ]
+        },
+        "storage": {
+          "permissions": [
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.READ_MEDIA_IMAGES",
+            "android.permission.READ_MEDIA_VIDEO"
+          ]
+        },
+        "notification": {
+          "permissions": ["android.permission.POST_NOTIFICATIONS"]
+        },
+        "vibrate": {
+          "permissions": ["android.permission.VIBRATE"]
+        }
+      }
+    }
+  },
+  "plugins": {
+    "shell": {
+      "open": true,
+      "execute": false,
+      "sidecar": false,
+      "scope": [
+        {
+          "name": "open-browser",
+          "cmd": "open",
+          "args": true
+        }
+      ]
+    },
+    "fs": {
+      "scope": ["$APPDATA/*", "$HOME/*", "$RESOURCE/*"],
+      "read": true,
+      "write": true,
+      "create": true,
+      "delete": true,
+      "rename": true,
+      "copy": true,
+      "exists": true,
+      "metadata": true
+    },
+    "dialog": {
+      "open": true,
+      "save": true,
+      "message": true,
+      "confirm": true,
+      "ask": true
+    },
+    "http": {
+      "scope": [
+        "https://*.supabase.co",
+        "https://api.qwen.ai",
+        "https://*.github.com"
+      ]
+    },
+    "clipboard": {
+      "read_text": true,
+      "write_text": true,
+      "read_image": false,
+      "write_image": false
+    },
+    "notification": {
+      "show": true,
+      "request_permission": true,
+      "permission_state": true
+    },
+    "camera": {
+      "request_permission": true,
+      "get_permission_state": true
+    },
+    "bluetooth": {
+      "request_permission": true,
+      "get_permission_state": true,
+      "scan": true,
+      "connect": true
+    },
+    "global-shortcut": {
+      "register": true,
+      "unregister": true,
+      "is_registered": true
+    },
+    "window": {
+      "create": true,
+      "close": true,
+      "maximize": true,
+      "minimize": true,
+      "unmaximize": true,
+      "unminimize": true,
+      "set_title": true,
+      "set_size": true,
+      "set_position": true,
+      "set_focus": true,
+      "center": true
+    }
+  }
+}
