@@ -1,0 +1,43 @@
+{
+  "name": "sembakokita-pwa",
+  "version": "2026.07.01",
+  "description": "SembakoKita.Pro — Ekosistem Krisis Pangan (PWA Frontend)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "format": "prettier --write .",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0",
+    "chart.js": "^4.4.0",
+    "bootstrap-icons": "^1.11.3"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.19.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "vitest": "^1.2.0",
+    "@vitest/ui": "^1.2.0",
+    "jsdom": "^24.0.0"
+  },
+  "browserslist": [
+    "> 0.5%",
+    "not dead",
+    "Android >= 5",
+    "Chrome >= 50",
+    "Firefox >= 50",
+    "iOS >= 12"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "SembakoKita.Pro Team",
+  "license": "MIT"
+}
