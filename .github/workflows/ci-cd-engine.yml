@@ -1,0 +1,397 @@
+# ============================================
+# CI/CD ENGINE — SembakoKita.Pro v2026.07.01
+# ============================================
+# Tugas:
+# 1. Trigger: Push ke main (atau .sembako-builder.json)
+# 2. Jalankan AI Agentic Builder (.ai/agent-brain/)
+# 3. Build APK/EXE via Tauri
+# 4. Deploy ke GitHub Pages / Vercel
+# 5. Upload artifact APK
+# ============================================
+
+name: 🚀 SembakoKita.Pro CI/CD Engine
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+    paths:
+      - '**.js'
+      - '**.ts'
+      - '**.html'
+      - '**.css'
+      - '**.json'
+      - '**.rs'
+      - '**.toml'
+      - '.sembako-builder.json'
+      - '.github/workflows/*.yml'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Tipe Build'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - web
+          - backend
+          - tauri
+      target_platform:
+        description: 'Platform Target'
+        required: true
+        default: 'android'
+        type: choice
+        options:
+          - android
+          - windows
+          - linux
+          - all
+
+# ============================================
+# ENVIRONMENT VARIABLES
+# ============================================
+env:
+  NODE_VERSION: 20
+  RUST_VERSION: stable
+  PNPM_VERSION: 8
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+  AI_API_KEY: ${{ secrets.AI_API_KEY }}
+  TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+  TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+# ============================================
+# JOBS
+# ============================================
+jobs:
+  # ============================================
+  # JOB 1: AI AGENTIC BUILDER
+  # ============================================
+  ai-builder:
+    name: 🧠 AI Agentic Builder
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      build_status: ${{ steps.build.outputs.status }}
+      generated_files: ${{ steps.build.outputs.files }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm install -g pnpm@${{ env.PNPM_VERSION }}
+          pnpm install --frozen-lockfile
+
+      - name: 🧠 Run AI Agentic Orchestrator
+        id: build
+        run: |
+          echo "🚀 Starting AI Agentic Builder..."
+          node .ai/agent-brain/orchestrator.js
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "files=$(find . -name '*.generated' | wc -l)" >> $GITHUB_OUTPUT
+
+      - name: 🔒 Security Scan
+        run: |
+          echo "🔒 Running Security Scan..."
+          node .ai/agent-brain/security-scanner.js
+
+      - name: 📦 Resolve Dependencies
+        run: |
+          echo "📦 Resolving Dependencies..."
+          node .ai/agent-brain/dependency-resolver.js
+
+      - name: 🩹 Self-Heal
+        run: |
+          echo "🩹 Running Self-Heal..."
+          node .ai/agent-brain/self-healer.js
+
+      - name: 📤 Push Changes
+        run: |
+          echo "📤 Pushing changes to GitHub..."
+          node .ai/agent-brain/git-pusher.js
+
+      - name: 📋 Upload Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            error.log
+            .ai/logs/*.log
+            build-output.txt
+
+  # ============================================
+  # JOB 2: BUILD WEB (PWA)
+  # ============================================
+  build-web:
+    name: 🌐 Build Web (PWA)
+    runs-on: ubuntu-latest
+    needs: ai-builder
+    if: github.event.inputs.build_type == 'full' || github.event.inputs.build_type == 'web'
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          cd web-pwa
+          npm install
+
+      - name: 🏗️ Build Web
+        run: |
+          cd web-pwa
+          npm run build
+
+      - name: 📋 Upload Web Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: web-pwa/dist/
+          retention-days: 7
+
+  # ============================================
+  # JOB 3: BUILD BACKEND (NestJS)
+  # ============================================
+  build-backend:
+    name: 🖥️ Build Backend (NestJS)
+    runs-on: ubuntu-latest
+    needs: ai-builder
+    if: github.event.inputs.build_type == 'full' || github.event.inputs.build_type == 'backend'
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          cd backend-hub
+          npm install
+
+      - name: 🏗️ Build Backend
+        run: |
+          cd backend-hub
+          npm run build
+
+      - name: 🧪 Run Tests
+        run: |
+          cd backend-hub
+          npm test
+
+      - name: 📋 Upload Backend Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend-hub/dist/
+          retention-days: 7
+
+  # ============================================
+  # JOB 4: BUILD TAURI (APK/EXE)
+  # ============================================
+  build-tauri:
+    name: 🦀 Build Tauri (APK/EXE)
+    runs-on: ubuntu-latest
+    needs: [ai-builder, build-web]
+    if: github.event.inputs.build_type == 'full' || github.event.inputs.build_type == 'tauri'
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        target:
+          - android
+          - windows
+          - linux
+        exclude:
+          - target: windows
+            os: ubuntu-latest
+          - target: linux
+            os: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🦀 Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          override: true
+          target: aarch64-linux-android
+
+      - name: 📦 Install Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: 📦 Install Android Dependencies
+        if: matrix.target == 'android'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y android-sdk
+          echo "ANDROID_HOME=/usr/lib/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=/usr/lib/android-sdk" >> $GITHUB_ENV
+
+      - name: 🏗️ Build Tauri
+        run: |
+          npm run build:web
+          if [ "${{ matrix.target }}" == "android" ]; then
+            npm run tauri build -- --target android
+          elif [ "${{ matrix.target }}" == "windows" ]; then
+            npm run tauri build -- --target windows
+          else
+            npm run tauri build -- --target linux
+          fi
+
+      - name: 📋 Upload APK/EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: sembako-${{ matrix.target }}
+          path: |
+            src-tauri/target/release/bundle/**/*.apk
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+          retention-days: 30
+
+  # ============================================
+  # JOB 5: DEPLOY TO GITHUB PAGES
+  # ============================================
+  deploy-pages:
+    name: 📡 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [build-web]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    timeout-minutes: 10
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: 📥 Download Web Build
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: dist
+
+      - name: 📡 Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: 🚀 Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ============================================
+  # JOB 6: DEPLOY TO VERCEL (Optional)
+  # ============================================
+  deploy-vercel:
+    name: 📡 Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: [build-web]
+    if: github.ref == 'refs/heads/main' && secrets.VERCEL_TOKEN != ''
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📥 Download Web Build
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: dist
+
+      - name: 🚀 Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+
+  # ============================================
+  # JOB 7: NOTIFICATION
+  # ============================================
+  notify:
+    name: 📨 Notification
+    runs-on: ubuntu-latest
+    needs: [ai-builder, build-web, build-backend, build-tauri]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: 📨 Send Telegram Notification
+        if: secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != ''
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚀 SembakoKita.Pro Build Complete!
+            
+            📦 Repo: ${{ github.repository }}
+            📅 Time: ${{ github.event.head_commit.timestamp }}
+            🌿 Branch: ${{ github.ref_name }}
+            👤 Author: ${{ github.actor }}
+            📋 Commit: ${{ github.event.head_commit.message }}
+            
+            📊 Status:
+            - AI Builder: ${{ needs.ai-builder.result }}
+            - Web Build: ${{ needs.build-web.result }}
+            - Backend: ${{ needs.build-backend.result }}
+            - Tauri: ${{ needs.build-tauri.result }}
+            
+            🔗 Download: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: 📨 Discord Notification
+        if: secrets.DISCORD_WEBHOOK != ''
+        uses: Ilshidur/action-discord@master
+        with:
+          args: |
+            🚀 **SembakoKita.Pro Build Complete!**
+            
+            📦 Repo: ${{ github.repository }}
+            📅 Time: ${{ github.event.head_commit.timestamp }}
+            🌿 Branch: ${{ github.ref_name }}
+            👤 Author: ${{ github.actor }}
+            
+            📊 Status:
+            - AI Builder: ${{ needs.ai-builder.result }}
+            - Web Build: ${{ needs.build-web.result }}
+            - Backend: ${{ needs.build-backend.result }}
+            - Tauri: ${{ needs.build-tauri.result }}
