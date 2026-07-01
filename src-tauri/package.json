@@ -1,0 +1,23 @@
+{
+  "name": "sembakokita-tauri",
+  "version": "2026.07.01",
+  "description": "SembakoKita.Pro — Tauri Wrapper (APK/EXE)",
+  "private": true,
+  "scripts": {
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:android": "tauri android build",
+    "tauri:build:windows": "tauri build --target windows",
+    "tauri:build:linux": "tauri build --target linux"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/cli": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "SembakoKita.Pro Team",
+  "license": "MIT"
+}
