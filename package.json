@@ -1,0 +1,50 @@
+{
+  "name": "sembakokita-pro",
+  "version": "2026.07.01",
+  "description": "SembakoKita.Pro — Ekosistem Krisis Pangan (Full Stack)",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:backend\"",
+    "dev:web": "cd web-pwa && npm run dev",
+    "dev:backend": "cd backend-hub && npm run start:dev",
+    "build": "npm run build:web && npm run build:backend",
+    "build:web": "cd web-pwa && npm run build",
+    "build:backend": "cd backend-hub && npm run build",
+    "build:tauri": "npm run build:web && tauri build",
+    "tauri:dev": "npm run build:web && tauri dev",
+    "tauri:build": "npm run build:web && tauri build",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "format": "prettier --write .",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/cli": "^2.0.0",
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "vitest": "^1.2.0",
+    "@vitest/ui": "^1.2.0",
+    "jsdom": "^24.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "SembakoKita.Pro Team",
+  "license": "MIT"
+}
