@@ -1,0 +1,151 @@
+# ============================================
+# CARGO.TOML — SembakoKita.Pro v2026.07.01
+# ============================================
+# Tugas:
+# 1. Manage dependency Rust
+# 2. Konfigurasi build Tauri
+# 3. Optimasi ukuran APK/EXE
+# ============================================
+
+[package]
+name = "sembakokita"
+version = "2026.07.01"
+description = "SembakoKita.Pro — Ekosistem Krisis Pangan (Tauri Wrapper)"
+authors = ["SembakoKita.Pro Team <support@sembakokita.pro>"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/sembakokita/sembakokita-pro"
+homepage = "https://sembakokita.pro"
+readme = "README.md"
+keywords = ["sembako", "pangan", "krisis", "offline", "mesh"]
+categories = ["utilities", "productivity"]
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# ============================================
+# TAURI CORE
+# ============================================
+tauri = { 
+  version = "2", 
+  features = [
+    "api-all",
+    "bluetooth",
+    "camera",
+    "notification",
+    "dialog",
+    "fs",
+    "http",
+    "shell",
+    "clipboard",
+    "global-shortcut",
+    "os",
+    "path",
+    "process",
+    "window",
+    "app",
+    "image",
+    "menu",
+    "tray"
+  ]
+}
+tauri-utils = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+
+# ============================================
+# ASYNC & RUNTIME
+# ============================================
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# ============================================
+# NETWORK & MESH
+# ============================================
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+bluetooth = "0.1"  # Untuk BLE (opsional)
+
+# ============================================
+# CRYPTOGRAPHY
+# ============================================
+sha2 = "0.10"
+aes-gcm = "0.10"
+pbkdf2 = "0.12"
+rand = "0.8"
+
+# ============================================
+# COMPRESSION
+# ============================================
+flate2 = "1.0"
+brotli = "3.4"
+
+# ============================================
+# DATABASE
+# ============================================
+rusqlite = { version = "0.30", features = ["bundled"] }
+serde-sqlite = "0.1"
+
+# ============================================
+# LOGGING
+# ============================================
+log = "0.4"
+env_logger = "0.10"
+
+# ============================================
+# UTILITY
+# ============================================
+chrono = "0.4"
+uuid = { version = "1", features = ["v4"] }
+base64 = "0.21"
+regex = "1.10"
+
+# ============================================
+# ERROR HANDLING
+# ============================================
+anyhow = "1"
+color-eyre = "0.6"
+
+[profile.dev]
+opt-level = 0
+debug = true
+lto = false
+codegen-units = 256
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.release.package."*"]
+opt-level = 3
+codegen-units = 1
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
+tauri = { version = "2", features = ["updater"] }
+
+[target."cfg(target_os = \"android\")".dependencies]
+tauri = { version = "2", features = ["android"] }
+
+[target."cfg(target_os = \"windows\")".dependencies]
+windows = "0.52"
+winapi = "0.3"
+
+[target."cfg(target_os = \"linux\")".dependencies]
+gtk = "0.18"
+webkit2gtk = "2.0"
+
+[target."cfg(target_os = \"macos\")".dependencies]
+cocoa = "0.25"
+webkit2gtk-mac = "0.1"
