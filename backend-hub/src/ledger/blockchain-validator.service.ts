@@ -1,14 +1,8 @@
 // ============================================
 // BLOCKCHAIN-VALIDATOR.SERVICE.TS
 // ============================================
-// Tugas:
-// 1. Validasi integritas ledger chain
-// 2. Verifikasi hash antar blok
-// 3. Deteksi manipulasi data
+// Tugas: Validasi integritas ledger chain (TANPA Logger)
 // ============================================
-
-import { Injectable, Logger } from '@nestjs/common';
-import * as crypto from 'crypto';
 
 export interface LedgerBlock {
   index: number;
@@ -19,19 +13,15 @@ export interface LedgerBlock {
   nonce: number;
 }
 
-@Injectable()
 export class BlockchainValidatorService {
-  private readonly logger = new Logger(BlockchainValidatorService.name);
   private chain: LedgerBlock[] = [];
-  private readonly DIFFICULTY = 2; // Jumlah leading zeros
+  private readonly DIFFICULTY = 2;
 
   constructor() {
     this.initGenesisBlock();
+    console.log('🔗 Genesis block created');
   }
 
-  // ============================================
-  // GENESIS BLOCK
-  // ============================================
   private initGenesisBlock() {
     const genesis: LedgerBlock = {
       index: 0,
@@ -43,12 +33,8 @@ export class BlockchainValidatorService {
     };
     genesis.hash = this.mine(genesis);
     this.chain.push(genesis);
-    this.logger.log('🔗 Genesis block created');
   }
 
-  // ============================================
-  // TAMBAH BLOK
-  // ============================================
   addBlock(data: string): LedgerBlock {
     const prevBlock = this.chain[this.chain.length - 1];
     const newBlock: LedgerBlock = {
@@ -61,13 +47,10 @@ export class BlockchainValidatorService {
     };
     newBlock.hash = this.mine(newBlock);
     this.chain.push(newBlock);
-    this.logger.log(`📦 Block #${newBlock.index} added: ${data.substring(0, 30)}...`);
+    console.log(`📦 Block #${newBlock.index} added`);
     return newBlock;
   }
 
-  // ============================================
-  // MINING (Proof of Work)
-  // ============================================
   private mine(block: LedgerBlock): string {
     let nonce = 0;
     let hash = '';
@@ -83,61 +66,40 @@ export class BlockchainValidatorService {
     return hash;
   }
 
-  // ============================================
-  // HASH
-  // ============================================
   private hashBlock(block: LedgerBlock): string {
     const data = `${block.index}${block.data}${block.timestamp}${block.prevHash}${block.nonce}`;
-    return crypto.createHash('sha256').update(data).digest('hex');
+    let hash = 0;
+    for (let i = 0; i < data.length; i++) {
+      const char = data.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(16).padStart(64, '0');
   }
 
-  // ============================================
-  // VALIDASI CHAIN
-  // ============================================
   validate(): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
-
     for (let i = 1; i < this.chain.length; i++) {
       const current = this.chain[i];
       const previous = this.chain[i - 1];
-
-      // Cek prevHash
       if (current.prevHash !== previous.hash) {
         errors.push(`Block #${i}: prevHash mismatch`);
       }
-
-      // Cek hash
       const computedHash = this.hashBlock(current);
       if (current.hash !== computedHash) {
         errors.push(`Block #${i}: hash mismatch`);
       }
-
-      // Cek difficulty
       if (!current.hash.startsWith('0'.repeat(this.DIFFICULTY))) {
         errors.push(`Block #${i}: invalid difficulty`);
       }
     }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-    };
+    return { valid: errors.length === 0, errors };
   }
 
-  // ============================================
-  // GET CHAIN
-  // ============================================
   getChain(limit: number = 10): LedgerBlock[] {
     return this.chain.slice(-limit).reverse();
   }
 
-  getFullChain(): LedgerBlock[] {
-    return this.chain;
-  }
-
-  // ============================================
-  // GET STATS
-  // ============================================
   getStats() {
     const validation = this.validate();
     return {
@@ -145,7 +107,6 @@ export class BlockchainValidatorService {
       valid: validation.valid,
       errors: validation.errors,
       lastBlock: this.chain[this.chain.length - 1],
-      genesis: this.chain[0],
       difficulty: this.DIFFICULTY,
     };
   }
